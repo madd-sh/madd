@@ -9,14 +9,12 @@ import { runDoctor } from '../src/doctor.js'
 const VERSION = '1.0.0'
 
 const HELP = `
-madd-init v${VERSION}
-
-Install MADD (Multi-Agent Driven Development) into your project.
+madd v${VERSION}
 
 Usage:
-  madd-init [path]                     Init in current dir or [path]
-  madd-init doctor [path]              Validate an existing MADD install
-  madd-init update [path]              Update MADD files with diff + confirm
+  madd init [path]      Scaffold MADD into current dir or [path]
+  madd doctor [path]    Validate an existing MADD install
+  madd update [path]    Update MADD files with diff + confirm per file
 
 Options:
   --force, -f    Overwrite existing files (backs up first into .madd.bak/)
@@ -30,7 +28,7 @@ Supported agents: ${AGENTS.map((a) => a.key).join(', ')}
 
 function parseArgs(argv) {
   const args = {
-    command: 'init',
+    command: null,
     targetPath: '.',
     force: false,
     dryRun: false,
@@ -47,14 +45,19 @@ function parseArgs(argv) {
     if (!arg.startsWith('-')) positional.push(arg)
   }
 
-  if (positional.length > 0) {
-    const first = positional[0]
-    if (first === 'doctor' || first === 'update' || first === 'init') {
-      args.command = first
-      if (positional[1]) args.targetPath = positional[1]
-    } else {
-      args.targetPath = first
-    }
+  const COMMANDS = ['init', 'doctor', 'update']
+  if (positional.length === 0) {
+    process.stdout.write(HELP + '\n')
+    process.exit(0)
+  }
+
+  const first = positional[0]
+  if (COMMANDS.includes(first)) {
+    args.command = first
+    if (positional[1]) args.targetPath = positional[1]
+  } else {
+    process.stderr.write(`Unknown command: ${first}\n${HELP}\n`)
+    process.exit(1)
   }
 
   args.targetPath = path.resolve(args.targetPath)
@@ -64,7 +67,7 @@ function parseArgs(argv) {
 async function cmdInit(targetPath, opts) {
   const { force, dryRun, yes } = opts
 
-  process.stdout.write(`\nmadd-init v${VERSION}\n`)
+  process.stdout.write(`\nmadd v${VERSION}\n`)
   process.stdout.write(`Target: ${targetPath}\n`)
   if (dryRun) process.stdout.write('[dry-run mode]\n')
 
@@ -91,7 +94,7 @@ async function cmdInit(targetPath, opts) {
   printSummary(summary, dryRun)
 
   if (!dryRun && (summary.copied.length > 0 || summary.backed_up.length > 0)) {
-    process.stdout.write('Run `madd-init doctor` to validate the install.\n\n')
+    process.stdout.write('Run `madd doctor` to validate the install.\n\n')
   }
 }
 
@@ -115,7 +118,7 @@ async function cmdUpdate(targetPath, opts) {
 }
 
 async function cmdDoctor(targetPath) {
-  process.stdout.write(`\nmadd-init doctor — ${targetPath}\n\n`)
+  process.stdout.write(`\nmadd doctor — ${targetPath}\n\n`)
   const reports = await runDoctor(targetPath)
 
   let allOk = true

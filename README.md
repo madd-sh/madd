@@ -1,12 +1,32 @@
-# madd-init
+# madd
 
-Install [MADD (Multi-Agent Driven Development)](https://madd.sh) into any project in seconds.
+The CLI for [MADD (Multi-Agent Driven Development)](https://madd.sh).
 
 ```sh
-npx madd-init
+npx madd init
 ```
 
 Detects which coding agents are present in your project, lets you select which ones to scaffold, and installs the full MADD methodology stack — agents, hooks, skills, contract files — without touching your existing code.
+
+---
+
+## Commands
+
+```sh
+madd init [path]      Scaffold MADD into current dir or [path]
+madd doctor [path]    Validate an existing MADD install
+madd update [path]    Update MADD files with diff + confirm per file
+```
+
+## Options
+
+```sh
+--force, -f    Overwrite existing files (backs up first into .madd.bak/)
+--dry-run      Show what would be copied without writing
+--yes, -y      Skip TUI, auto-select all detected agents
+--version, -v  Print version
+--help, -h     Print help
+```
 
 ---
 
@@ -19,33 +39,6 @@ Detects which coding agents are present in your project, lets you select which o
 | Mistral Vibe | `.vibe/config.toml` |
 | OpenCode | `.opencode/opencode.json` |
 | Docker cagent | `madd.yaml` |
-
----
-
-## Usage
-
-```sh
-# Interactive — detects agents, shows TUI selector
-npx madd-init
-
-# Non-interactive — auto-select all detected agents
-npx madd-init --yes
-
-# Preview without writing anything
-npx madd-init --dry-run --yes
-
-# Install into a specific directory
-npx madd-init /path/to/project
-
-# Overwrite existing files (backs up to .madd.bak/ first)
-npx madd-init --force
-
-# Validate an existing install
-npx madd-init doctor
-
-# Update MADD files with diff + per-file confirmation
-npx madd-init update
-```
 
 ---
 
@@ -95,10 +88,9 @@ Your existing project files are never modified. MADD installs only into `.madd/`
 ## After install
 
 ```sh
-# Validate the install
-npx madd-init doctor
+madd doctor          # validate the install
 
-# Start a MADD fraction (Claude Code)
+# Claude Code: start a MADD fraction
 /madd
 ```
 
