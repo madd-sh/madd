@@ -17,17 +17,22 @@ function walkDir(dir, callback) {
   }
 }
 
-// Returns Map<relPath, srcAbsPath>. Per-agent files override shared ones on same relPath.
+// Returns Map<relPath, {src: string, agent: string}>
+// Per-agent files override shared ones on same relPath.
 function collectFiles(agents) {
   const files = new Map()
   const sharedDir = path.join(AGENTS_DIR, 'shared')
   if (fs.existsSync(sharedDir)) {
-    walkDir(sharedDir, (abs) => files.set(path.relative(sharedDir, abs), abs))
+    walkDir(sharedDir, (abs) =>
+      files.set(path.relative(sharedDir, abs), { src: abs, agent: 'shared' })
+    )
   }
   for (const key of agents) {
     const agentDir = path.join(AGENTS_DIR, key)
     if (fs.existsSync(agentDir)) {
-      walkDir(agentDir, (abs) => files.set(path.relative(agentDir, abs), abs))
+      walkDir(agentDir, (abs) =>
+        files.set(path.relative(agentDir, abs), { src: abs, agent: key })
+      )
     }
   }
   return files
@@ -42,9 +47,8 @@ export function diffFiles(srcPath, destPath) {
   if (!fs.existsSync(destPath)) return ''
   try {
     execSync(`diff -u "${destPath}" "${srcPath}"`, { stdio: 'pipe' })
-    return '' // exit 0 = identical
+    return ''
   } catch (err) {
-    // diff exits 1 when files differ — stdout contains the diff
     return err.stdout?.toString() ?? ''
   }
 }
@@ -56,24 +60,29 @@ function copyFile(src, dest) {
 }
 
 /**
+ * @typedef {{ path: string, agent: string }} FileEntry
+ * @typedef {{ copied: FileEntry[], skipped: string[], backed_up: FileEntry[] }} ScaffoldSummary
+ */
+
+/**
  * @param {string[]} agents
  * @param {string} targetPath
  * @param {{ force?: boolean, dryRun?: boolean, update?: boolean }} opts
  * @param {((relPath: string, diff: string) => Promise<boolean>) | null} confirmFn
- * @returns {Promise<{ copied: string[], skipped: string[], backed_up: string[] }>}
+ * @returns {Promise<ScaffoldSummary>}
  */
 export async function scaffold(agents, targetPath, opts, confirmFn = null) {
   const { force = false, dryRun = false, update = false } = opts
   const summary = { copied: [], skipped: [], backed_up: [] }
   const files = collectFiles(agents)
 
-  for (const [relPath, srcPath] of files) {
+  for (const [relPath, { src: srcPath, agent }] of files) {
     const destPath = path.join(targetPath, relPath)
     const exists = fs.existsSync(destPath)
 
     if (!exists) {
       if (!dryRun) copyFile(srcPath, destPath)
-      summary.copied.push(relPath)
+      summary.copied.push({ path: relPath, agent })
       continue
     }
 
@@ -83,7 +92,7 @@ export async function scaffold(agents, targetPath, opts, confirmFn = null) {
         copyFile(destPath, backupPath)
         copyFile(srcPath, destPath)
       }
-      summary.backed_up.push(relPath)
+      summary.backed_up.push({ path: relPath, agent })
       continue
     }
 
@@ -93,7 +102,7 @@ export async function scaffold(agents, targetPath, opts, confirmFn = null) {
       const confirmed = await confirmFn(relPath, diff)
       if (confirmed) {
         if (!dryRun) copyFile(srcPath, destPath)
-        summary.copied.push(relPath)
+        summary.copied.push({ path: relPath, agent })
       } else {
         summary.skipped.push(relPath)
       }

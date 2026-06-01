@@ -1,6 +1,6 @@
 import { AGENTS } from './detect-agents.js'
 
-const ESC = ''
+const ESC = ''
 const GREEN = `${ESC}[32m`
 const CYAN = `${ESC}[36m`
 const DIM = `${ESC}[2m`
@@ -13,7 +13,7 @@ const KEYS = {
   SPACE: ' ',
   ENTER: '\r',
   ENTER_LF: '\n',
-  CTRL_C: '',
+  CTRL_C: '',
   A: 'a',
   Q: 'q',
 }
@@ -21,8 +21,8 @@ const KEYS = {
 function write(s) { process.stdout.write(s) }
 
 function clearLines(n) {
-  write('[2K')
-  for (let i = 1; i < n; i++) write('[1A[2K')
+  write('[2K')
+  for (let i = 1; i < n; i++) write('[1A[2K')
   write('\r')
 }
 
@@ -48,7 +48,6 @@ function renderSelectUI(cursor, selected, detected) {
  */
 export async function selectAgents(detected) {
   if (!process.stdin.isTTY) {
-    // Non-interactive: return all detected agents (or all if none detected)
     const hits = AGENTS.filter((a) => detected[a.key]).map((a) => a.key)
     return hits.length > 0 ? hits : AGENTS.map((a) => a.key)
   }
@@ -78,11 +77,9 @@ export async function selectAgents(detected) {
         reject(new Error('Aborted'))
         return
       }
-      if (key === KEYS.UP) {
-        cursor = (cursor - 1 + AGENTS.length) % AGENTS.length
-      } else if (key === KEYS.DOWN) {
-        cursor = (cursor + 1) % AGENTS.length
-      } else if (key === KEYS.SPACE) {
+      if (key === KEYS.UP) cursor = (cursor - 1 + AGENTS.length) % AGENTS.length
+      else if (key === KEYS.DOWN) cursor = (cursor + 1) % AGENTS.length
+      else if (key === KEYS.SPACE) {
         const k = AGENTS[cursor].key
         if (selected.has(k)) selected.delete(k)
         else selected.add(k)
@@ -142,14 +139,14 @@ export async function confirmFileDiff(filePath, diff) {
 }
 
 /**
- * @param {{ copied: string[], skipped: string[], backed_up: string[] }} summary
+ * @param {{ copied: Array<{path: string, agent: string}>, skipped: string[], backed_up: Array<{path: string, agent: string}> }} summary
  * @param {boolean} dryRun
  */
 export function printSummary(summary, dryRun = false) {
   const prefix = dryRun ? `${DIM}[dry-run]${RESET} ` : ''
   write('\n')
-  for (const f of summary.copied) write(`  ${GREEN}+${RESET} ${prefix}${f}\n`)
-  for (const f of summary.backed_up) write(`  ${CYAN}~${RESET} ${prefix}${f} (backed up)\n`)
+  for (const f of summary.copied) write(`  ${GREEN}+${RESET} ${prefix}${f.path}\n`)
+  for (const f of summary.backed_up) write(`  ${CYAN}~${RESET} ${prefix}${f.path} (backed up)\n`)
   for (const f of summary.skipped) write(`  ${DIM}=${RESET} ${f} (skipped)\n`)
   write('\n')
   const action = dryRun ? 'Would copy' : 'Copied'
