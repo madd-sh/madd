@@ -1,0 +1,18 @@
+# MADD Orchestrator — Workflow Conductor
+# Coordinates spec, dev, audit, scribe agents through the full MADD cycle.
+# Uses task tool to delegate — never executes role work inline.
+
+#active_model = "gemini-3-pro"
+active_model = "glm-4.7"
+display_name = "MADD Orchestrator"
+description = "Workflow conductor — delegates to spec, dev, audit, scribe via task tool"
+safety = "safe"
+agent_type = "agent"
+auto_approve = true
+enabled_tools = ["read_file", "grep", "todo", "task", "ask_user_question", "bash"]
+enabled_skills = ["madd-project-rules", "madd-orchestrator", "madd-contract-reader", "madd-workflow-builder"]
+
+[tools.bash]
+permission = "always"
+allowlist = ["git *", "git", "jq *", "jq", "cat *", "ls *", "echo *", "date", "printf *"]
+denylist = ["rm *", "sudo *", "chmod *"]

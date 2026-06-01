@@ -1,0 +1,18 @@
+{
+  "name": "madd-init",
+  "version": "1.0.0",
+  "description": "Install MADD (Multi-Agent Driven Development) methodology into your project",
+  "type": "module",
+  "bin": {
+    "madd-init": "./bin/madd-init.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "bin",
+    "src",
+    "agents"
+  ],
+  "license": "MIT"
+}

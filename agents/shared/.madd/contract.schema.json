@@ -1,0 +1,683 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://madd.sh/contract.schema.json",
+  "title": "MADD Contract Schema",
+  "description": "Schema for Multi-Agent Driven Development contracts",
+  "type": "object",
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Contract identity and governance",
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "name": { "type": "string" },
+        "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+        "status": { "enum": ["draft", "approved", "implemented", "verified"] },
+        "created": { "type": "string", "format": "date-time" },
+        "updated": { "type": "string", "format": "date-time" },
+        "authors": { "type": "array", "items": { "type": "string" } },
+        "approvers": { "type": "array", "items": { "type": "string" } },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "cycle": {
+          "type": "object",
+          "description": "MADD cycle tracking — links this cycle to previous retro-specification",
+          "properties": {
+            "id": { "type": "integer", "minimum": 1, "description": "Current cycle number, starts at 1" },
+            "previous_retro_ref": {
+              "type": ["string", "null"],
+              "description": "Git tag or commit of the retro that started this cycle"
+            }
+          }
+        }
+      },
+      "required": ["name", "version", "status"]
+    },
+
+    "intention": {
+      "type": "object",
+      "description": "The WHY - Business context and objectives",
+      "properties": {
+        "context": { "type": "string" },
+        "objectives": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string", "pattern": "^OBJ-\\d+$" },
+              "description": { "type": "string" },
+              "success_metrics": { "type": "array", "items": { "type": "string" } }
+            },
+            "required": ["id", "description"]
+          }
+        },
+        "stakeholders": { "type": "array", "items": { "type": "string" } },
+        "constraints": {
+          "type": "object",
+          "properties": {
+            "budget": { "type": ["string", "null"] },
+            "deadline": { "type": ["string", "null"], "format": "date" },
+            "regulations": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "out_of_scope": { "type": "array", "items": { "type": "string" } },
+        "assumptions": { "type": "array", "items": { "type": "string" } },
+        "risks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string", "pattern": "^RISK-\\d+$" },
+              "description": { "type": "string" },
+              "probability": { "enum": ["low", "medium", "high"] },
+              "impact": { "enum": ["low", "medium", "high"] },
+              "mitigation": { "type": "string" }
+            },
+            "required": ["id", "description"]
+          }
+        }
+      },
+      "required": ["context", "objectives"]
+    },
+
+    "functional": {
+      "type": "object",
+      "description": "The WHAT - User-facing specifications",
+      "properties": {
+        "actors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "description": { "type": "string" }
+            },
+            "required": ["id", "description"]
+          }
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string", "pattern": "^FEAT-\\d+$" },
+              "name": { "type": "string" },
+              "description": { "type": "string" },
+              "actor": { "type": "string" },
+              "priority": { "enum": ["must-have", "should-have", "nice-to-have"] },
+              "requirements": { "type": "array", "items": { "type": "string" } }
+            },
+            "required": ["id", "name", "description"]
+          }
+        },
+        "requirements": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string", "pattern": "^REQ-F-\\d+$" },
+              "feature": { "type": "string" },
+              "description": { "type": "string" },
+              "acceptance_criteria": { "type": "array", "items": { "type": "string" } },
+              "domains": {
+                "type": "array",
+                "items": {
+                  "enum": ["database", "api", "frontend", "security", "infrastructure"]
+                },
+                "description": "Technical domains this requirement touches."
+              },
+              "validation": {
+                "type": "object",
+                "properties": {
+                  "method": { "enum": ["test", "manual", "automated"] },
+                  "test_id": { "type": "string" }
+                }
+              }
+            },
+            "required": ["id", "description", "acceptance_criteria"]
+          }
+        },
+        "workflows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string", "pattern": "^WF-\\d+$" },
+              "name": { "type": "string" },
+              "steps": { "type": "array", "items": { "type": "string" } },
+              "diagram": { "type": "string" }
+            },
+            "required": ["id", "name", "steps"]
+          }
+        },
+        "business_rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string", "pattern": "^BR-\\d+$" },
+              "description": { "type": "string" },
+              "enforcement": { "type": "string" }
+            },
+            "required": ["id", "description"]
+          }
+        },
+        "ui_specs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string", "pattern": "^UI-\\d+$" },
+              "screen": { "type": "string" },
+              "mockup": { "type": "string" },
+              "components": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        }
+      }
+    },
+
+    "technical": {
+      "type": "object",
+      "description": "The HOW - System specifications",
+      "properties": {
+        "architecture": {
+          "type": "object",
+          "properties": {
+            "style": { "enum": ["monolith", "microservices", "serverless", "hybrid"] },
+            "diagram": { "type": "string" },
+            "components": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "string", "pattern": "^COMP-\\d+$" },
+                  "name": { "type": "string" },
+                  "type": { "enum": ["service", "library", "database", "queue", "cache", "external"] },
+                  "responsibility": { "type": "string" },
+                  "dependencies": { "type": "array", "items": { "type": "string" } }
+                },
+                "required": ["id", "name", "type"]
+              }
+            },
+            "decisions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "string", "pattern": "^ADR-\\d+$" },
+                  "title": { "type": "string" },
+                  "status": { "enum": ["proposed", "accepted", "deprecated", "superseded"] },
+                  "context": { "type": "string" },
+                  "decision": { "type": "string" },
+                  "consequences": { "type": "string" }
+                },
+                "required": ["id", "title", "status", "decision"]
+              }
+            }
+          }
+        },
+        "stack": {
+          "type": "object",
+          "properties": {
+            "language": { "type": "string" },
+            "runtime": { "type": "string" },
+            "framework": { "type": "string" },
+            "database": { "type": "string" },
+            "cache": { "type": "string" },
+            "packages": {
+              "type": "object",
+              "properties": {
+                "required": { "type": "array", "items": { "type": "string" } },
+                "forbidden": { "type": "array", "items": { "type": "string" } },
+                "preferred": { "type": "object", "additionalProperties": { "type": "string" } }
+              }
+            }
+          }
+        },
+        "data_model": {
+          "type": "object",
+          "properties": {
+            "entities": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "table": { "type": "string" },
+                  "fields": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": { "type": "string" },
+                        "type": { "type": "string" },
+                        "primary": { "type": "boolean" },
+                        "unique": { "type": "boolean" },
+                        "nullable": { "type": "boolean" },
+                        "index": { "type": "boolean" },
+                        "default": { "type": ["string", "number", "boolean", "null"] }
+                      },
+                      "required": ["name", "type"]
+                    }
+                  },
+                  "indexes": { "type": "array", "items": { "type": "string" } },
+                  "constraints": { "type": "array", "items": { "type": "string" } }
+                },
+                "required": ["name", "fields"]
+              }
+            },
+            "relationships": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "from": { "type": "string" },
+                  "to": { "type": "string" },
+                  "type": { "enum": ["one-to-one", "one-to-many", "many-to-many"] }
+                }
+              }
+            }
+          }
+        },
+        "api": {
+          "type": "object",
+          "properties": {
+            "style": { "enum": ["rest", "graphql", "grpc", "websocket"] },
+            "base_path": { "type": "string" },
+            "auth_method": { "type": "string" },
+            "endpoints": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "string", "pattern": "^API-\\d+$" },
+                  "method": { "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+                  "path": { "type": "string" },
+                  "description": { "type": "string" },
+                  "request": {
+                    "type": "object",
+                    "properties": {
+                      "params": { "type": "object" },
+                      "query": { "type": "object" },
+                      "body": { "type": "object" }
+                    }
+                  },
+                  "responses": { "type": "object" },
+                  "requirements": { "type": "array", "items": { "type": "string" } }
+                },
+                "required": ["id", "method", "path"]
+              }
+            },
+            "conventions": {
+              "type": "object",
+              "properties": {
+                "naming": { "type": "string" },
+                "errors": { "type": "object" },
+                "pagination": { "type": "object" }
+              }
+            }
+          }
+        },
+        "nfr": {
+          "type": "object",
+          "description": "Non-functional requirements",
+          "properties": {
+            "performance": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "string", "pattern": "^REQ-NF-\\d+$" },
+                  "metric": { "type": "string" },
+                  "target": { "type": "string" },
+                  "measurement": { "type": "string" }
+                }
+              }
+            },
+            "security": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "string", "pattern": "^REQ-NF-\\d+$" },
+                  "requirement": { "type": "string" },
+                  "owasp": { "type": "string" }
+                }
+              }
+            },
+            "reliability": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "string", "pattern": "^REQ-NF-\\d+$" },
+                  "metric": { "type": "string" },
+                  "target": { "type": "string" }
+                }
+              }
+            },
+            "scalability": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "string", "pattern": "^REQ-NF-\\d+$" },
+                  "requirement": { "type": "string" },
+                  "constraints": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "tasks": {
+      "type": "object",
+      "description": "BUILD - Execution plan",
+      "properties": {
+        "phases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string", "pattern": "^PHASE-\\d+$" },
+              "name": { "type": "string" },
+              "description": { "type": "string" },
+              "order": { "type": "integer" },
+              "category": {
+                "enum": ["foundation", "core", "feature", "polish"],
+                "description": "Phase type — Principle 5: foundations must complete before features"
+              },
+              "tasks": { "type": "array", "items": { "type": "string" } }
+            },
+            "required": ["id", "name", "order", "category"]
+          }
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string", "pattern": "^TASK-\\d+$" },
+              "title": { "type": "string" },
+              "description": { "type": "string" },
+              "phase": { "type": "string" },
+              "requirements": { "type": "array", "items": { "type": "string" } },
+              "dependencies": { "type": "array", "items": { "type": "string" } },
+              "acceptance": { "type": "array", "items": { "type": "string" } },
+              "fraction_hint": {
+                "type": "string",
+                "description": "Label grouping related tasks into a fraction for incremental dev→ci→audit cycles"
+              },
+              "domains": {
+                "type": "array",
+                "items": {
+                  "enum": ["database", "api", "frontend", "security", "infrastructure"]
+                },
+                "description": "Technical domains this task involves. Used by Conductor to instantiate domain-specific Maker/Breaker pairs."
+              },
+              "status": { "enum": ["pending", "in_progress", "done", "blocked"] },
+              "assignee": { "type": "string" }
+            },
+            "required": ["id", "title", "status"]
+          }
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string", "pattern": "^TEST-\\d+$" },
+              "type": { "enum": ["unit", "integration", "e2e", "performance", "security"] },
+              "requirement": { "type": "string" },
+              "description": { "type": "string" },
+              "steps": { "type": "array", "items": { "type": "string" } },
+              "status": { "enum": ["pending", "passing", "failing", "skipped"] }
+            },
+            "required": ["id", "type", "description"]
+          }
+        }
+      }
+    },
+
+    "operations": {
+      "type": "object",
+      "description": "RUN - Deployment and operations",
+      "properties": {
+        "environments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "url": { "type": "string", "format": "uri" },
+              "region": { "type": "string" }
+            },
+            "required": ["name"]
+          }
+        },
+        "infrastructure": {
+          "type": "object",
+          "properties": {
+            "provider": { "enum": ["aws", "gcp", "azure", "self-hosted", "hybrid"] },
+            "compute": { "type": "object" },
+            "database": { "type": "object" },
+            "networking": { "type": "object" }
+          }
+        },
+        "deployment": {
+          "type": "object",
+          "properties": {
+            "strategy": { "enum": ["rolling", "blue-green", "canary", "recreate"] },
+            "pipeline": { "type": "string" },
+            "stages": { "type": "array", "items": { "type": "string" } },
+            "rollback": { "type": "object" }
+          }
+        },
+        "configuration": {
+          "type": "object",
+          "properties": {
+            "secrets": { "type": "array", "items": { "type": "object" } },
+            "env_vars": { "type": "array", "items": { "type": "object" } }
+          }
+        },
+        "monitoring": {
+          "type": "object",
+          "properties": {
+            "logging": { "type": "object" },
+            "metrics": { "type": "object" },
+            "alerting": { "type": "array", "items": { "type": "object" } },
+            "slo": { "type": "array", "items": { "type": "object" } }
+          }
+        },
+        "runbooks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string", "pattern": "^RB-\\d+$" },
+              "title": { "type": "string" },
+              "symptoms": { "type": "array", "items": { "type": "string" } },
+              "steps": { "type": "array", "items": { "type": "string" } }
+            },
+            "required": ["id", "title", "steps"]
+          }
+        }
+      }
+    },
+
+    "retro": {
+      "type": "object",
+      "description": "POST - Reality documentation by SCRIBE",
+      "properties": {
+        "generated_at": { "type": "string", "format": "date-time" },
+        "generated_by": { "type": "string" },
+        "implementation": {
+          "type": "object",
+          "properties": {
+            "components": { "type": "array", "items": { "type": "object" } },
+            "endpoints": { "type": "array", "items": { "type": "object" } }
+          }
+        },
+        "coverage": {
+          "type": "object",
+          "properties": {
+            "requirements": { "type": "object" },
+            "tests": { "type": "object" }
+          }
+        },
+        "debt": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string", "pattern": "^DEBT-\\d+$" },
+              "type": { "enum": ["todo", "fixme", "hack", "workaround", "deprecated"] },
+              "location": { "type": "string" },
+              "description": { "type": "string" },
+              "impact": { "enum": ["low", "medium", "high"] },
+              "effort": { "enum": ["small", "medium", "large"] },
+              "source_rec": {
+                "type": ["string", "null"],
+                "pattern": "^REC-\\d+$",
+                "description": "Original recommendation ID if converted from audit finding"
+              }
+            },
+            "required": ["id", "type", "location", "description"]
+          }
+        },
+        "gaps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "intended": { "type": "string" },
+              "actual": { "type": "string" },
+              "reason": { "type": "string" }
+            }
+          }
+        },
+        "changelog": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "version": { "type": "string" },
+              "date": { "type": "string", "format": "date" },
+              "added": { "type": "array", "items": { "type": "string" } },
+              "changed": { "type": "array", "items": { "type": "string" } },
+              "fixed": { "type": "array", "items": { "type": "string" } },
+              "removed": { "type": "array", "items": { "type": "string" } },
+              "security": { "type": "array", "items": { "type": "string" } }
+            },
+            "required": ["version", "date"]
+          }
+        }
+      }
+    },
+
+    "audit_cycle": {
+      "type": "object",
+      "description": "AUDIT - Iteration tracking and prioritized recommendations",
+      "properties": {
+        "current_iteration": { "type": "integer", "minimum": 0 },
+        "max_iterations": { "type": "integer", "minimum": 1, "default": 3 },
+        "release_type": { "type": ["string", "null"], "enum": ["major", "minor", "patch", null] },
+        "scope": { "type": ["string", "null"], "enum": ["full", "feature", "targeted", null] },
+        "baseline_ref": { "type": ["string", "null"] },
+        "started_at": { "type": ["string", "null"], "format": "date-time" },
+        "status": { "enum": ["pending", "in_progress", "complete"] },
+        "scope_details": {
+          "type": "object",
+          "properties": {
+            "changed_files": { "type": "array", "items": { "type": "string" } },
+            "impacted_requirements": { "type": "array", "items": { "type": "string" } },
+            "impacted_components": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "history": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "iteration": { "type": "integer" },
+              "verdict": { "enum": ["APPROVED", "CHANGES_REQUIRED", "REJECTED"] },
+              "date": { "type": "string", "format": "date-time" },
+              "summary": { "type": "string" }
+            },
+            "required": ["iteration", "verdict", "date"]
+          }
+        },
+        "fractions": {
+          "type": "array",
+          "description": "Fraction-based decomposition for incremental dev→ci→audit cycles",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string", "pattern": "^FRAC-\\d+$" },
+              "name": { "type": "string" },
+              "tasks": { "type": "array", "items": { "type": "string" }, "description": "TASK-xxx IDs in this fraction" },
+              "requirements": { "type": "array", "items": { "type": "string" }, "description": "REQ-F-xxx IDs covered by this fraction" },
+              "phase_category": { "enum": ["foundation", "core", "feature", "polish"] },
+              "max_iterations": { "type": "integer", "minimum": 1, "maximum": 5 },
+              "current_iteration": { "type": "integer", "minimum": 0 },
+              "status": { "enum": ["pending", "in_progress", "approved", "conditional", "rejected"] },
+              "history": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "iteration": { "type": "integer" },
+                    "verdict": { "enum": ["CI_PASS", "CI_FAIL", "APPROVED", "CHANGES_REQUIRED", "REJECTED"] },
+                    "date": { "type": "string", "format": "date-time" }
+                  }
+                }
+              }
+            },
+            "required": ["id", "tasks", "status"]
+          }
+        },
+        "recommendations": {
+          "type": "array",
+          "description": "Prioritized audit recommendations tracked across iterations",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string", "pattern": "^REC-\\d+$" },
+              "severity": { "enum": ["blocker", "major", "minor", "observation"] },
+              "priority": { "type": "integer", "minimum": 1, "description": "Computed priority (1=highest)" },
+              "category": { "enum": ["security", "compliance", "quality", "performance", "architecture"] },
+              "status": { "enum": ["open", "in_progress", "resolved", "deferred", "wont_fix"] },
+              "title": { "type": "string" },
+              "description": { "type": "string" },
+              "location": { "type": "string", "description": "File path and line number" },
+              "related_requirements": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "REQ-F-xxx or REQ-NF-xxx IDs"
+              },
+              "related_components": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "COMP-xxx IDs"
+              },
+              "confidence": { "type": "integer", "minimum": 0, "maximum": 100, "description": "Audit confidence score (0-100)" },
+              "fraction": { "type": "string", "pattern": "^FRAC-\\d+$", "description": "Fraction this recommendation belongs to" },
+              "introduced_in_iteration": { "type": "integer" },
+              "resolved_in_iteration": { "type": ["integer", "null"] },
+              "resolution": {
+                "type": ["string", "null"],
+                "description": "How the recommendation was addressed"
+              },
+              "created_at": { "type": "string", "format": "date-time" },
+              "updated_at": { "type": "string", "format": "date-time" }
+            },
+            "required": ["id", "severity", "priority", "category", "status", "title", "description", "introduced_in_iteration", "created_at"]
+          }
+        }
+      },
+      "required": ["current_iteration", "max_iterations", "status", "history", "recommendations"]
+    }
+  }
+}

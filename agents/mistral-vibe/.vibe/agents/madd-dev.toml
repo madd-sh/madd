@@ -1,0 +1,15 @@
+# MADD Dev — Developer
+# Implements code and tests to satisfy the contract.
+# All tools available — full implementation power.
+
+#active_model = "opus"
+active_model = "glm-4.7"
+display_name = "MADD Dev"
+description = "Developer — implements code and tests to satisfy the contract"
+safety = "destructive"
+agent_type = "subagent"
+auto_approve = true
+enabled_skills = ["madd-project-rules", "madd-dev", "madd-contract-reader", "madd-correction"]
+
+[tools.bash]
+permission = "always"

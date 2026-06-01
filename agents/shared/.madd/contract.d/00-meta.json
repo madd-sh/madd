@@ -1,0 +1,22 @@
+{
+  "$schema": "./schema.json",
+  "meta": {
+    "name": "project-name",
+    "version": "0.1.0",
+    "maddVersion": "1.0.0",
+    "status": "draft",
+    "created": "2026-01-01T00:00:00Z",
+    "updated": "2026-01-01T00:00:00Z",
+    "authors": ["@spec"],
+    "tags": [],
+    "release": {
+      "type": null,
+      "baseline_ref": null,
+      "baseline_version": null
+    },
+    "cycle": {
+      "id": 1,
+      "previous_retro_ref": null
+    }
+  }
+}

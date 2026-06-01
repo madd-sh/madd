@@ -1,0 +1,28 @@
+{
+  "operations": {
+    "environments": [],
+    "infrastructure": {
+      "provider": null,
+      "compute": {},
+      "database": {},
+      "networking": {}
+    },
+    "deployment": {
+      "strategy": "rolling",
+      "pipeline": null,
+      "stages": [],
+      "rollback": {}
+    },
+    "configuration": {
+      "secrets": [],
+      "env_vars": []
+    },
+    "monitoring": {
+      "logging": {},
+      "metrics": {},
+      "alerting": [],
+      "slo": []
+    },
+    "runbooks": []
+  }
+}

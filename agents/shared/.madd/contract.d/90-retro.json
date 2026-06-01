@@ -1,0 +1,27 @@
+{
+  "retro": {
+    "generated_at": null,
+    "generated_by": "@scribe",
+    "implementation": {
+      "components": [],
+      "endpoints": []
+    },
+    "coverage": {
+      "requirements": {
+        "total": 0,
+        "implemented": 0,
+        "partial": 0,
+        "missing": 0,
+        "details": []
+      },
+      "tests": {
+        "unit": { "total": 0, "passing": 0, "failing": 0 },
+        "integration": { "total": 0, "passing": 0, "failing": 0 },
+        "e2e": { "total": 0, "passing": 0, "failing": 0 }
+      }
+    },
+    "debt": [],
+    "gaps": [],
+    "changelog": []
+  }
+}

@@ -1,0 +1,246 @@
+#!/usr/bin/env cagent run
+
+# MADD Boilerplate for Docker cagent
+# Multi-Agent Driven Development — 6 agents, 6 LLMs, 1 contract, zero conflict of interest.
+#
+# Usage:
+#   cagent run madd.yaml                         # Full workflow via conductor
+#   cagent run madd.yaml -a madd-architect         # Specification only
+#   cagent run madd.yaml -a madd-maker             # Development only
+#   cagent run madd.yaml -a madd-ci                # CI validation only
+#   cagent run madd.yaml -a madd-breaker           # Audit only
+#   cagent run madd.yaml -a madd-witness           # Documentation only
+
+metadata:
+  author: madd-sh
+  readme: |
+    MADD Boilerplate for Docker cagent.
+    6 agents, 6 different LLMs, 1 contract, zero conflict of interest.
+    See https://madd.sh for the MADD methodology.
+
+providers:
+  zhipu:
+    api_type: openai_chatcompletions
+    base_url: https://api.z.ai/api/coding/paas/v4
+    token_key: ZAI_API_KEY
+
+models:
+  gemini:
+    provider: google
+    model: gemini-3-pro
+    max_tokens: 64000
+  glm:
+    provider: zhipu
+    model: glm-4.7
+    max_tokens: 64000
+  opus:
+    provider: anthropic
+    model: claude-opus-4-6
+    max_tokens: 64000
+  gpt:
+    provider: openai
+    model: gpt-5.3-codex
+    max_tokens: 64000
+  sonnet:
+    provider: anthropic
+    model: claude-sonnet-4-5-20250929
+    max_tokens: 64000
+
+agents:
+  madd-conductor: &madd-conductor
+    #model: gemini
+    model: glm
+    description: "MADD Conductor — Domain-aware workflow orchestration with fraction-based dev/audit cycles"
+    welcome_message: "MADD Conductor ready. Describe your request and I'll coordinate the right workflow."
+    sub_agents: [madd-architect, madd-maker, madd-ci, madd-breaker, madd-witness]
+    max_iterations: 60
+    add_date: true
+    add_environment_info: true
+    toolsets:
+      - type: shell
+      - type: think
+      - type: todo
+    add_prompt_files:
+      - ./.cagent/agents/madd-conductor.md
+      - ./.cagent/skills/madd-workflow-builder/SKILL.md
+    hooks:
+      pre_tool_use:
+        - matcher: "shell"
+          hooks:
+            - type: command
+              timeout: 10
+              command: |
+                INPUT=$(cat)
+                CMD=$(echo "$INPUT" | jq -r '.tool_input.cmd // ""')
+
+                if echo "$CMD" | grep -Eq '^(git|jq|cat|ls|mv|mkdir|echo|date|printf)([[:space:]].*)?$'; then
+                  echo '{"continue": true}'
+                else
+                  cat <<EOF
+                {"hook_specific_output":{"permission_decision":"deny","permission_decision_reason":"Conductor shell is restricted to git/jq/cat/ls/mv/mkdir/echo/date/printf."}}
+                EOF
+                fi
+
+  madd-architect:
+    model: glm
+    description: "MADD Architect — Intention Architect, formalizes the 'why' and 'what' with domain annotations"
+    toolsets:
+      - type: filesystem
+      - type: shell
+      - type: think
+    add_prompt_files:
+      - ./.cagent/agents/madd-architect.md
+      - ./.cagent/skills/madd-contract-reader/SKILL.md
+      - ./.cagent/skills/madd-contract-writer/SKILL.md
+
+  madd-maker:
+    #model: opus
+    model: glm
+    description: "MADD Maker — Domain-specialized developer, transforms intention into working code"
+    toolsets:
+      - type: filesystem
+      - type: shell
+      - type: think
+      - type: todo
+    add_prompt_files:
+      - ./.cagent/agents/madd-maker.md
+      - ./.cagent/skills/madd-contract-reader/SKILL.md
+      - ./.cagent/skills/madd-correction/SKILL.md
+
+  madd-ci:
+    #model: gpt
+    model: glm
+    description: "MADD CI — Validator, runs build/lint/type-check/test pipeline before audit"
+    toolsets:
+      - type: filesystem
+      - type: shell
+      - type: think
+    add_prompt_files:
+      - ./.cagent/agents/madd-ci.md
+      - ./.cagent/skills/madd-contract-reader/SKILL.md
+    hooks:
+      pre_tool_use:
+        - matcher: "shell"
+          hooks:
+            - type: command
+              timeout: 10
+              command: |
+                INPUT=$(cat)
+                CMD=$(echo "$INPUT" | jq -r '.tool_input.cmd // ""')
+
+                if echo "$CMD" | grep -Eq '^(npm[[:space:]]+(run[[:space:]]+(build|lint|test|format|typecheck)|test|run[[:space:]]+test:integration)([[:space:]].*)?|npx[[:space:]]+(tsc|prettier|eslint)([[:space:]].*)?|pytest([[:space:]].*)?|python[[:space:]]+-m[[:space:]]+(py_compile|compileall|mypy|ruff|black|flake8)([[:space:]].*)?|mypy([[:space:]].*)?|ruff([[:space:]].*)?|black([[:space:]].*)?|flake8([[:space:]].*)?|go[[:space:]]+(build|test|vet)([[:space:]].*)?|golangci-lint([[:space:]].*)?|gofmt([[:space:]].*)?|git[[:space:]]+(diff|log|describe)([[:space:]].*)?|grep([[:space:]].*)?|find([[:space:]].*)?|cat([[:space:]].*)?|ls([[:space:]].*)?|jq([[:space:]].*)?|test([[:space:]].*)?)$'; then
+                  echo '{"continue": true}'
+                else
+                  cat <<EOF
+                {"hook_specific_output":{"permission_decision":"deny","permission_decision_reason":"CI shell is restricted to build/lint/test/format/type-check commands and read-only tools."}}
+                EOF
+                fi
+        - matcher: "write_file|edit_file"
+          hooks:
+            - type: command
+              timeout: 10
+              command: |
+                INPUT=$(cat)
+                PATH_VALUE=$(echo "$INPUT" | jq -r '.tool_input.path // ""')
+
+                if echo "$PATH_VALUE" | grep -Eq '^(\./)?(src/|lib/|app/|internal/|pkg/|cmd/)'; then
+                  echo '{"continue": true}'
+                else
+                  cat <<EOF
+                {"hook_specific_output":{"permission_decision":"deny","permission_decision_reason":"CI write access restricted to source files for lint/format auto-fix only."}}
+                EOF
+                fi
+
+  madd-breaker:
+    # gpt-5.3-codex — independent from maker (opus) for audit integrity
+    #model: gpt
+    model: glm
+    description: "MADD Breaker — Domain-specialized verifier, audits code independently with confidence scoring"
+    toolsets:
+      - type: filesystem
+      - type: shell
+      - type: think
+    add_prompt_files:
+      - ./.cagent/agents/madd-breaker.md
+      - ./.cagent/skills/madd-contract-reader/SKILL.md
+    hooks:
+      pre_tool_use:
+        - matcher: "shell"
+          hooks:
+            - type: command
+              timeout: 10
+              command: |
+                INPUT=$(cat)
+                CMD=$(echo "$INPUT" | jq -r '.tool_input.cmd // ""')
+
+                if echo "$CMD" | grep -Eq '^(git[[:space:]]+(diff|log)([[:space:]].*)?|grep([[:space:]].*)?|find([[:space:]].*)?|cat([[:space:]].*)?|ls([[:space:]].*)?|jq([[:space:]].*)?|npm[[:space:]]+test([[:space:]].*)?|pytest([[:space:]].*)?|go[[:space:]]+test([[:space:]].*)?)$'; then
+                  echo '{"continue": true}'
+                else
+                  cat <<EOF
+                {"hook_specific_output":{"permission_decision":"deny","permission_decision_reason":"Breaker shell is read-only and test-only (git diff/log, grep/find/cat/ls/jq, npm test, pytest, go test)."}}
+                EOF
+                fi
+        - matcher: "write_file|edit_file"
+          hooks:
+            - type: command
+              timeout: 10
+              command: |
+                cat <<EOF
+                {"hook_specific_output":{"permission_decision":"deny","permission_decision_reason":"Breaker is strictly read-only and cannot edit files."}}
+                EOF
+
+  madd-witness:
+    #model: sonnet
+    model: glm
+    description: "MADD Witness — Documents objective reality, retro-specification across all fractions"
+    toolsets:
+      - type: filesystem
+      - type: shell
+      - type: think
+    add_prompt_files:
+      - ./.cagent/agents/madd-witness.md
+      - ./.cagent/skills/madd-contract-reader/SKILL.md
+      - ./.cagent/skills/madd-contract-writer/SKILL.md
+    hooks:
+      pre_tool_use:
+        - matcher: "shell"
+          hooks:
+            - type: command
+              timeout: 10
+              command: |
+                INPUT=$(cat)
+                CMD=$(echo "$INPUT" | jq -r '.tool_input.cmd // ""')
+
+                if echo "$CMD" | grep -Eq '^(git[[:space:]]+(diff|log)([[:space:]].*)?|grep([[:space:]].*)?|find([[:space:]].*)?|cat([[:space:]].*)?|ls([[:space:]].*)?|jq([[:space:]].*)?)$'; then
+                  echo '{"continue": true}'
+                else
+                  cat <<EOF
+                {"hook_specific_output":{"permission_decision":"deny","permission_decision_reason":"Witness shell is restricted to read-only commands (git diff/log, grep/find/cat/ls/jq)."}}
+                EOF
+                fi
+        - matcher: "write_file|edit_file"
+          hooks:
+            - type: command
+              timeout: 10
+              command: |
+                INPUT=$(cat)
+                PATH_VALUE=$(echo "$INPUT" | jq -r '.tool_input.path // ""')
+
+                if echo "$PATH_VALUE" | grep -Eq '^(\./)?(\.madd/contract\.d/90-retro\.json|CHANGELOG\.md)$'; then
+                  echo '{"continue": true}'
+                else
+                  cat <<EOF
+                {"hook_specific_output":{"permission_decision":"deny","permission_decision_reason":"Witness can only edit .madd/contract.d/90-retro.json or CHANGELOG.md."}}
+                EOF
+                fi
+
+  root: *madd-conductor
+
+permissions:
+  deny:
+    - "shell:cmd=rm -rf*"
+    - "shell:cmd=sudo*"
+    - "shell:cmd=mkfs*"
+    - "shell:cmd=dd if=*"
+    - "shell:cmd=git reset --hard*"
+    - "shell:cmd=git checkout --*"

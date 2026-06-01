@@ -1,0 +1,19 @@
+# MADD Scribe — Witness
+# Documents objective reality in retro-specification.
+# Write limited to 90-retro.json and CHANGELOG.md (enforced by instructions).
+# Bash restricted to read-only commands.
+
+#active_model = "sonnet"
+active_model = "glm-4.7"
+display_name = "MADD Scribe"
+description = "Witness — documents objective reality in retro-specification"
+safety = "neutral"
+agent_type = "subagent"
+auto_approve = true
+enabled_tools = ["read_file", "write_file", "search_replace", "grep", "bash"]
+enabled_skills = ["madd-project-rules", "madd-scribe", "madd-contract-reader", "madd-contract-writer"]
+
+[tools.bash]
+permission = "always"
+allowlist = ["git diff*", "git log*", "git show*", "grep *", "find *", "cat *", "ls *", "jq *"]
+denylist = ["rm *", "sudo *", "chmod *"]

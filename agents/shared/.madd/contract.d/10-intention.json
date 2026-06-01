@@ -1,0 +1,21 @@
+{
+  "intention": {
+    "context": "Describe the business problem and why this project exists.",
+    "objectives": [
+      {
+        "id": "OBJ-001",
+        "description": "Primary objective",
+        "success_metrics": ["Metric 1", "Metric 2"]
+      }
+    ],
+    "stakeholders": [],
+    "constraints": {
+      "budget": null,
+      "deadline": null,
+      "regulations": []
+    },
+    "out_of_scope": [],
+    "assumptions": [],
+    "risks": []
+  }
+}
