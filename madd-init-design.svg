@@ -1,0 +1,238 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 820" font-family="monospace, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#64748b"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#3b82f6"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#10b981"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1100" height="820" fill="#0f172a"/>
+
+  <!-- Title -->
+  <text x="550" y="38" text-anchor="middle" font-size="20" font-weight="bold" fill="#f1f5f9">madd-init</text>
+  <text x="550" y="58" text-anchor="middle" font-size="12" fill="#64748b">architecture overview — capacites / composants / interactions / contrats</text>
+
+  <!-- ═══════════════════════════════════════════════
+       ROW 1 : USER ENTRY + COMMANDS
+  ════════════════════════════════════════════════ -->
+
+  <!-- User box -->
+  <rect x="30" y="80" width="140" height="44" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+  <text x="100" y="98" text-anchor="middle" font-size="11" fill="#94a3b8">utilisateur</text>
+  <text x="100" y="115" text-anchor="middle" font-size="12" font-weight="bold" fill="#e2e8f0">npx madd-init</text>
+
+  <!-- Arrow user -> bin -->
+  <line x1="170" y1="102" x2="218" y2="102" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- bin/madd-init.js -->
+  <rect x="220" y="80" width="180" height="44" rx="6" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="310" y="98" text-anchor="middle" font-size="10" fill="#93c5fd">entry point</text>
+  <text x="310" y="114" text-anchor="middle" font-size="12" font-weight="bold" fill="#bfdbfe">bin/madd-init.js</text>
+
+  <!-- Commands label -->
+  <text x="460" y="88" font-size="10" fill="#64748b">commandes</text>
+
+  <!-- Command badges -->
+  <rect x="450" y="94" width="52" height="22" rx="4" fill="#1e293b" stroke="#6366f1" stroke-width="1"/>
+  <text x="476" y="109" text-anchor="middle" font-size="11" fill="#a5b4fc">init</text>
+
+  <rect x="510" y="94" width="60" height="22" rx="4" fill="#1e293b" stroke="#6366f1" stroke-width="1"/>
+  <text x="540" y="109" text-anchor="middle" font-size="11" fill="#a5b4fc">doctor</text>
+
+  <rect x="578" y="94" width="60" height="22" rx="4" fill="#1e293b" stroke="#6366f1" stroke-width="1"/>
+  <text x="608" y="109" text-anchor="middle" font-size="11" fill="#a5b4fc">update</text>
+
+  <!-- Flags -->
+  <text x="700" y="88" font-size="10" fill="#64748b">flags</text>
+  <rect x="690" y="94" width="75" height="22" rx="4" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+  <text x="727" y="109" text-anchor="middle" font-size="10" fill="#94a3b8">--dry-run</text>
+  <rect x="773" y="94" width="60" height="22" rx="4" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+  <text x="803" y="109" text-anchor="middle" font-size="10" fill="#94a3b8">--force</text>
+  <rect x="841" y="94" width="48" height="22" rx="4" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+  <text x="865" y="109" text-anchor="middle" font-size="10" fill="#94a3b8">--yes</text>
+
+  <!-- Arrow bin -> detect -->
+  <line x1="310" y1="124" x2="310" y2="168" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+
+  <!-- ═══════════════════════════════════════════════
+       ROW 2 : DETECT + TUI
+  ════════════════════════════════════════════════ -->
+
+  <!-- detect-agents.js -->
+  <rect x="180" y="170" width="260" height="70" rx="6" fill="#1e293b" stroke="#0ea5e9" stroke-width="1.5"/>
+  <text x="310" y="188" text-anchor="middle" font-size="10" fill="#7dd3fc">detection heuristique</text>
+  <text x="310" y="204" text-anchor="middle" font-size="12" font-weight="bold" fill="#bae6fd">detect-agents.js</text>
+  <text x="310" y="220" text-anchor="middle" font-size="10" fill="#64748b">detectAgents(targetPath)</text>
+  <text x="310" y="234" text-anchor="middle" font-size="10" fill="#64748b">→ Record&lt;string, boolean&gt;</text>
+
+  <!-- Markers legend inside detect box -->
+  <!-- Arrow detect -> tui -->
+  <line x1="440" y1="205" x2="488" y2="205" stroke="#0ea5e9" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="464" y="198" text-anchor="middle" font-size="9" fill="#64748b">detected</text>
+
+  <!-- tui.js -->
+  <rect x="490" y="170" width="260" height="70" rx="6" fill="#1e293b" stroke="#8b5cf6" stroke-width="1.5"/>
+  <text x="620" y="188" text-anchor="middle" font-size="10" fill="#c4b5fd">terminal UI (readline raw)</text>
+  <text x="620" y="204" text-anchor="middle" font-size="12" font-weight="bold" fill="#ddd6fe">tui.js</text>
+  <text x="620" y="220" text-anchor="middle" font-size="10" fill="#64748b">selectAgents() / confirmFileDiff()</text>
+  <text x="620" y="234" text-anchor="middle" font-size="10" fill="#64748b">printSummary()</text>
+
+  <!-- Detection markers panel -->
+  <rect x="800" y="160" width="270" height="90" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+  <text x="935" y="178" text-anchor="middle" font-size="10" font-weight="bold" fill="#64748b">marqueurs de detection</text>
+  <text x="815" y="194" font-size="10" fill="#94a3b8">claude-code</text>
+  <text x="920" y="194" font-size="10" fill="#475569">.claude/settings.json</text>
+  <text x="815" y="208" font-size="10" fill="#94a3b8">codex</text>
+  <text x="920" y="208" font-size="10" fill="#475569">.codex/config.toml</text>
+  <text x="815" y="222" font-size="10" fill="#94a3b8">mistral-vibe</text>
+  <text x="920" y="222" font-size="10" fill="#475569">.vibe/config.toml</text>
+  <text x="815" y="236" font-size="10" fill="#94a3b8">opencode</text>
+  <text x="920" y="236" font-size="10" fill="#475569">.opencode/opencode.json</text>
+  <text x="815" y="250" font-size="10" fill="#94a3b8">docker-cagent</text>
+  <text x="920" y="250" font-size="10" fill="#475569">madd.yaml</text>
+
+  <!-- Arrow tui -> scaffold -->
+  <line x1="620" y1="240" x2="620" y2="308" stroke="#8b5cf6" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="630" y="278" font-size="9" fill="#64748b">selected[]</text>
+
+  <!-- ═══════════════════════════════════════════════
+       ROW 3 : SCAFFOLD (central)
+  ════════════════════════════════════════════════ -->
+
+  <!-- scaffold.js -->
+  <rect x="390" y="310" width="460" height="80" rx="6" fill="#1a2e1a" stroke="#10b981" stroke-width="2"/>
+  <text x="620" y="330" text-anchor="middle" font-size="10" fill="#6ee7b7">moteur de copie — zero deps (node:fs, node:path)</text>
+  <text x="620" y="348" text-anchor="middle" font-size="13" font-weight="bold" fill="#a7f3d0">scaffold.js</text>
+  <text x="620" y="366" text-anchor="middle" font-size="10" fill="#64748b">scaffold(agents, targetPath, opts) → ScaffoldSummary</text>
+  <text x="620" y="380" text-anchor="middle" font-size="10" fill="#64748b">diffFiles(src, dest) → string</text>
+
+  <!-- Safety model badges -->
+  <rect x="850" y="318" width="55" height="20" rx="3" fill="#1e293b" stroke="#10b981" stroke-width="1"/>
+  <text x="877" y="332" text-anchor="middle" font-size="9" fill="#6ee7b7">skip</text>
+  <rect x="912" y="318" width="55" height="20" rx="3" fill="#1e293b" stroke="#10b981" stroke-width="1"/>
+  <text x="939" y="332" text-anchor="middle" font-size="9" fill="#6ee7b7">backup</text>
+  <rect x="974" y="318" width="55" height="20" rx="3" fill="#1e293b" stroke="#10b981" stroke-width="1"/>
+  <text x="1001" y="332" text-anchor="middle" font-size="9" fill="#6ee7b7">--force</text>
+  <rect x="850" y="344" width="55" height="20" rx="3" fill="#1e293b" stroke="#64748b" stroke-width="1"/>
+  <text x="877" y="358" text-anchor="middle" font-size="9" fill="#94a3b8">dry-run</text>
+  <text x="912" y="352" font-size="9" fill="#64748b">mode update:</text>
+  <text x="912" y="364" font-size="9" fill="#64748b">diff + confirm</text>
+
+  <!-- Arrow detect -> scaffold (shared path) -->
+  <line x1="310" y1="240" x2="310" y2="290" stroke="#0ea5e9" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="310" y1="290" x2="390" y2="350" stroke="#0ea5e9" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+
+  <!-- ═══════════════════════════════════════════════
+       ROW 4 : TEMPLATES + DOCTOR
+  ════════════════════════════════════════════════ -->
+
+  <!-- Arrow scaffold -> templates -->
+  <line x1="540" y1="390" x2="400" y2="448" stroke="#10b981" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+  <text x="440" y="420" font-size="9" fill="#64748b">lit les templates</text>
+
+  <!-- Arrow scaffold -> target -->
+  <line x1="700" y1="390" x2="840" y2="448" stroke="#10b981" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+  <text x="730" y="420" font-size="9" fill="#64748b">ecrit dans la cible</text>
+
+  <!-- Templates panel -->
+  <rect x="180" y="450" width="340" height="180" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+  <text x="350" y="470" text-anchor="middle" font-size="11" font-weight="bold" fill="#64748b">agents/ (templates embarques)</text>
+
+  <!-- shared -->
+  <rect x="195" y="478" width="145" height="60" rx="4" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+  <text x="267" y="494" text-anchor="middle" font-size="10" font-weight="bold" fill="#94a3b8">shared/</text>
+  <text x="267" y="508" text-anchor="middle" font-size="9" fill="#64748b">.madd/contract.schema.json</text>
+  <text x="267" y="521" text-anchor="middle" font-size="9" fill="#64748b">.madd/contract.d/</text>
+  <text x="267" y="534" text-anchor="middle" font-size="9" fill="#64748b">SKILL.md communs</text>
+
+  <!-- per-agent -->
+  <rect x="350" y="478" width="160" height="140" rx="4" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+  <text x="430" y="494" text-anchor="middle" font-size="10" font-weight="bold" fill="#94a3b8">par agent</text>
+  <text x="365" y="512" font-size="9" fill="#64748b">claude-code/  .claude/</text>
+  <text x="365" y="526" font-size="9" fill="#64748b">codex/        .codex/</text>
+  <text x="365" y="540" font-size="9" fill="#64748b">mistral-vibe/ .vibe/</text>
+  <text x="365" y="554" font-size="9" fill="#64748b">opencode/     .opencode/</text>
+  <text x="365" y="568" font-size="9" fill="#64748b">docker-cagent/ madd.yaml</text>
+  <text x="365" y="584" font-size="9" fill="#475569">override shared si conflit</text>
+  <text x="365" y="598" font-size="9" fill="#475569">de chemin</text>
+  <text x="365" y="612" font-size="9" fill="#6ee7b7">00-meta.json: maddVersion</text>
+
+  <!-- Target project panel -->
+  <rect x="560" y="450" width="280" height="180" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+  <text x="700" y="470" text-anchor="middle" font-size="11" font-weight="bold" fill="#64748b">projet cible (targetPath)</text>
+  <text x="575" y="490" font-size="10" fill="#94a3b8">.madd/</text>
+  <text x="595" y="504" font-size="9" fill="#64748b">contract.schema.json</text>
+  <text x="595" y="518" font-size="9" fill="#64748b">contract.d/00-meta.json  (maddVersion)</text>
+  <text x="595" y="532" font-size="9" fill="#64748b">contract.d/10..90-*.json</text>
+  <text x="575" y="548" font-size="10" fill="#94a3b8">.claude/ ou .codex/ ou .vibe/...</text>
+  <text x="595" y="562" font-size="9" fill="#64748b">settings.json / config.toml</text>
+  <text x="595" y="576" font-size="9" fill="#64748b">agents/*.md</text>
+  <text x="595" y="590" font-size="9" fill="#64748b">hooks/*.sh</text>
+  <text x="575" y="606" font-size="10" fill="#6ee7b7">.madd.bak/  (backup avant ecrasement)</text>
+
+  <!-- doctor.js -->
+  <rect x="860" y="450" width="210" height="100" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="965" y="470" text-anchor="middle" font-size="10" fill="#fcd34d">validation post-install</text>
+  <text x="965" y="488" text-anchor="middle" font-size="12" font-weight="bold" fill="#fde68a">doctor.js</text>
+  <text x="965" y="506" text-anchor="middle" font-size="10" fill="#64748b">runDoctor(targetPath)</text>
+  <text x="965" y="520" text-anchor="middle" font-size="10" fill="#64748b">→ AgentReport[]</text>
+  <text x="965" y="538" text-anchor="middle" font-size="10" fill="#64748b">fichiers presents + JSON valide</text>
+  <text x="965" y="552" text-anchor="middle" font-size="10" fill="#64748b">+ maddVersion present</text>
+
+  <!-- Arrow scaffold -> doctor -->
+  <line x1="750" y1="390" x2="940" y2="448" stroke="#64748b" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <text x="870" y="415" font-size="9" fill="#64748b">apres init</text>
+
+  <!-- ═══════════════════════════════════════════════
+       ROW 5 : CONTRACTS SUMMARY
+  ════════════════════════════════════════════════ -->
+
+  <rect x="30" y="670" width="1040" height="130" rx="6" fill="#0f172a" stroke="#1e293b" stroke-width="1"/>
+  <text x="550" y="690" text-anchor="middle" font-size="11" font-weight="bold" fill="#475569">contrats (signatures cles)</text>
+
+  <!-- Column 1 -->
+  <text x="50" y="710" font-size="10" font-weight="bold" fill="#bae6fd">detect-agents.js</text>
+  <text x="50" y="724" font-size="9" fill="#64748b">AGENTS: {key, marker}[]</text>
+  <text x="50" y="737" font-size="9" fill="#64748b">detectAgents(path)</text>
+  <text x="50" y="750" font-size="9" fill="#64748b">  → Record&lt;string,bool&gt;</text>
+
+  <!-- Column 2 -->
+  <text x="240" y="710" font-size="10" font-weight="bold" fill="#ddd6fe">tui.js</text>
+  <text x="240" y="724" font-size="9" fill="#64748b">selectAgents(detected)</text>
+  <text x="240" y="737" font-size="9" fill="#64748b">  → string[]</text>
+  <text x="240" y="750" font-size="9" fill="#64748b">confirmFileDiff(path, diff)</text>
+  <text x="240" y="763" font-size="9" fill="#64748b">  → boolean</text>
+  <text x="240" y="776" font-size="9" fill="#64748b">printSummary(summary)</text>
+
+  <!-- Column 3 -->
+  <text x="430" y="710" font-size="10" font-weight="bold" fill="#a7f3d0">scaffold.js</text>
+  <text x="430" y="724" font-size="9" fill="#64748b">scaffold(agents, path, opts)</text>
+  <text x="430" y="737" font-size="9" fill="#64748b">  opts: {force, dryRun, update}</text>
+  <text x="430" y="750" font-size="9" fill="#64748b">  → ScaffoldSummary</text>
+  <text x="430" y="763" font-size="9" fill="#64748b">diffFiles(src, dest) → string</text>
+  <text x="430" y="776" font-size="9" fill="#64748b">ScaffoldSummary:</text>
+  <text x="430" y="789" font-size="9" fill="#64748b">  {copied, skipped, backed_up}</text>
+
+  <!-- Column 4 -->
+  <text x="650" y="710" font-size="10" font-weight="bold" fill="#fde68a">doctor.js</text>
+  <text x="650" y="724" font-size="9" fill="#64748b">runDoctor(path)</text>
+  <text x="650" y="737" font-size="9" fill="#64748b">  → AgentReport[]</text>
+  <text x="650" y="750" font-size="9" fill="#64748b">AgentReport:</text>
+  <text x="650" y="763" font-size="9" fill="#64748b">  {agent, checks[]}</text>
+  <text x="650" y="776" font-size="9" fill="#64748b">  checks: {label,ok,detail}</text>
+
+  <!-- Column 5 -->
+  <text x="840" y="710" font-size="10" font-weight="bold" fill="#94a3b8">package.json</text>
+  <text x="840" y="724" font-size="9" fill="#64748b">name: "madd-init"</text>
+  <text x="840" y="737" font-size="9" fill="#64748b">type: "module"</text>
+  <text x="840" y="750" font-size="9" fill="#64748b">bin: madd-init → bin/madd-init.js</text>
+  <text x="840" y="763" font-size="9" fill="#64748b">engines: node &gt;= 18</text>
+  <text x="840" y="776" font-size="9" fill="#64748b">dependencies: {}</text>
+
+</svg>

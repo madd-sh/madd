@@ -1,0 +1,69 @@
+# MADD Boilerplate for Mistral Vibe
+# 5 agents, 5 LLMs, 1 contract, zero conflict of interest.
+#
+# Requires environment variables:
+#   GOOGLE_API_KEY      — Gemini 3 Pro (orchestrator)
+#   ZAI_API_KEY         — GLM 4.7 (spec)
+#   ANTHROPIC_API_KEY   — Opus 4.6 (dev), Sonnet 4.5 (scribe)
+#   OPENAI_API_KEY      — GPT 5.3 Codex (audit)
+
+# Default model (overridden per agent in .vibe/agents/*.toml)
+active_model = "glm-4.7"
+
+# --- Providers ---
+
+[[providers]]
+name = "google"
+api_base = "https://generativelanguage.googleapis.com/v1beta/openai"
+api_key_env_var = "GOOGLE_API_KEY"
+backend = "generic"
+
+[[providers]]
+name = "zhipu"
+api_base = "https://api.z.ai/api/coding/paas/v4"
+api_key_env_var = "ZAI_API_KEY"
+backend = "generic"
+
+[[providers]]
+name = "anthropic"
+api_base = "https://api.anthropic.com/v1"
+api_key_env_var = "ANTHROPIC_API_KEY"
+backend = "generic"
+
+[[providers]]
+name = "openai"
+api_base = "https://api.openai.com/v1"
+api_key_env_var = "OPENAI_API_KEY"
+backend = "generic"
+
+# --- Models ---
+
+[[models]]
+name = "gemini-3-pro"
+provider = "google"
+alias = "gemini-3-pro"
+temperature = 0.3
+
+[[models]]
+name = "glm-4.7"
+provider = "zhipu"
+alias = "glm-4.7"
+temperature = 0.3
+
+[[models]]
+name = "claude-opus-4-6"
+provider = "anthropic"
+alias = "opus"
+temperature = 0.2
+
+[[models]]
+name = "gpt-5.3-codex"
+provider = "openai"
+alias = "gpt-5.3-codex"
+temperature = 0.1
+
+[[models]]
+name = "claude-sonnet-4-5-20250929"
+provider = "anthropic"
+alias = "sonnet"
+temperature = 0.2

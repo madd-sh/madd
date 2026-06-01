@@ -1,0 +1,12 @@
+# MADD Spec — Intention Architect
+# Formalizes the "why" and "what" into executable contracts.
+# No bash access — spec defines, never executes.
+
+active_model = "glm-4.7"
+display_name = "MADD Spec"
+description = "Intention architect — formalizes WHY and WHAT into executable contracts"
+safety = "neutral"
+agent_type = "subagent"
+auto_approve = true
+enabled_tools = ["read_file", "write_file", "search_replace", "grep"]
+enabled_skills = ["madd-project-rules", "madd-spec", "madd-contract-reader", "madd-contract-writer"]

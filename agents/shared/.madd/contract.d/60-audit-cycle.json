@@ -1,0 +1,19 @@
+{
+  "audit_cycle": {
+    "current_iteration": 0,
+    "max_iterations": 3,
+    "release_type": null,
+    "scope": null,
+    "baseline_ref": null,
+    "started_at": null,
+    "status": "pending",
+    "scope_details": {
+      "changed_files": [],
+      "impacted_requirements": [],
+      "impacted_components": []
+    },
+    "fractions": [],
+    "history": [],
+    "recommendations": []
+  }
+}

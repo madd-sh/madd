@@ -1,0 +1,36 @@
+{
+  "technical": {
+    "architecture": {
+      "style": "monolith",
+      "components": [],
+      "decisions": []
+    },
+    "stack": {
+      "language": null,
+      "runtime": null,
+      "framework": null,
+      "database": null,
+      "packages": {
+        "required": [],
+        "forbidden": [],
+        "preferred": {}
+      }
+    },
+    "data_model": {
+      "entities": [],
+      "relationships": []
+    },
+    "api": {
+      "style": "rest",
+      "base_path": "/api/v1",
+      "endpoints": [],
+      "conventions": {}
+    },
+    "nfr": {
+      "performance": [],
+      "security": [],
+      "reliability": [],
+      "scalability": []
+    }
+  }
+}

@@ -1,0 +1,18 @@
+# MADD Audit — Verifier
+# Read-only quality gate. Cannot modify source code or contract files.
+# Bash restricted to read-only commands and test execution.
+
+#active_model = "gpt-5.3-codex"
+active_model = "glm-4.7"
+display_name = "MADD Audit"
+description = "Verifier — read-only quality gate, never modifies source code"
+safety = "safe"
+agent_type = "subagent"
+auto_approve = true
+enabled_tools = ["read_file", "grep", "bash"]
+enabled_skills = ["madd-project-rules", "madd-audit", "madd-contract-reader"]
+
+[tools.bash]
+permission = "always"
+allowlist = ["git diff*", "git log*", "git show*", "grep *", "find *", "cat *", "ls *", "jq *", "npm test*", "pytest*", "uv run*", "cargo test*", "go test*"]
+denylist = ["rm *", "sudo *", "chmod *", "echo *>*", "mv *", "cp *"]

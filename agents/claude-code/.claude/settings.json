@@ -1,0 +1,70 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/pre-tool-use/block-dangerous-commands.sh",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/pre-tool-use/block-sensitive-files.sh",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'if echo \"$TOOL_INPUT\" | grep -qE \"(npm\\s+install|yarn\\s+add|pip\\s+install|go\\s+get)\" && test -f .madd/contract.d/30-technical.json; then FORBIDDEN=$(jq -r \".technical.stack.packages.forbidden // [] | .[]\" .madd/contract.d/30-technical.json 2>/dev/null); for pkg in $FORBIDDEN; do if echo \"$TOOL_INPUT\" | grep -q \"$pkg\"; then echo \"BLOCKED: Package $pkg is in forbidden list (technical.stack.packages.forbidden)\" >&2; exit 2; fi; done; fi'",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'FILE=$(echo \"$TOOL_INPUT\" | jq -r \".file_path // .path // empty\" 2>/dev/null); if echo \"$FILE\" | grep -q \".madd/contract.d/\"; then echo \"WARNING: Writing to contract file $FILE — verify agent has ownership\" >&2; fi'",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/stop/validate-state.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/post-tool-use/auto-format.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
