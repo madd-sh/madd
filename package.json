@@ -6,6 +6,9 @@
   "bin": {
     "madd": "./bin/madd.js"
   },
+  "scripts": {
+    "test": "node --test"
+  },
   "engines": {
     "node": ">=18.0.0"
   },

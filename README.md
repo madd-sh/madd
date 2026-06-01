@@ -14,19 +14,34 @@ Detects which coding agents are present in your project, lets you select which o
 
 ```sh
 madd init [path]      Scaffold MADD into current dir or [path]
+madd status [path]    Show install state (version, modified/missing files)
+madd update [path]    Update MADD files with diff + confirm; prune orphans
+madd deinit [path]    Remove unmodified MADD files (reads the manifest)
 madd doctor [path]    Validate an existing MADD install
-madd update [path]    Update MADD files with diff + confirm per file
 ```
 
 ## Options
 
 ```sh
---force, -f    Overwrite existing files (backs up first into .madd.bak/)
---dry-run      Show what would be copied without writing
+--force, -f    init: overwrite existing files (backs up first into .madd.bak/)
+               deinit: skip the SHA1 check (10s Ctrl-C window in a terminal)
+--dry-run      Show what would happen without writing anything
 --yes, -y      Skip TUI, auto-select all detected agents
+--json         Machine-readable output (status, doctor)
 --version, -v  Print version
 --help, -h     Print help
 ```
+
+## Manifest
+
+Every `init` writes `.madd/manifest.yaml`: the list of files MADD installed,
+each with the SHA1 of the template it came from, plus the `maddVersion` and the
+selected agents. It is human-readable YAML (a superset of JSON).
+
+This is what makes `deinit` safe: a file is only removed when it still matches
+the template SHA1, so anything you have edited (or a config that predated the
+install) is always kept. `status` uses the same comparison to report which
+tracked files are `unchanged`, `modified`, or `missing`.
 
 ---
 
