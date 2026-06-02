@@ -1,24 +1,15 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { readManifest, sha1, MANIFEST_REL } from './manifest.js'
+import { removeEmptyDirs } from './fsutil.js'
 
 const RED = '\x1b[31m'
 const DIM = '\x1b[2m'
 const BOLD = '\x1b[1m'
 const RESET = '\x1b[0m'
 
-function removeEmptyDirs(dir, stopAt) {
-  if (path.resolve(dir) === path.resolve(stopAt)) return
-  try {
-    if (fs.readdirSync(dir).length === 0) {
-      fs.rmdirSync(dir)
-      removeEmptyDirs(path.dirname(dir), stopAt)
-    }
-  } catch {}
-}
-
 async function countdown(seconds) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     process.stdout.write(`\n${BOLD}${RED}Warning:${RESET} all MADD files will be removed without SHA1 check.\n`)
     process.stdout.write(`Press Ctrl-C to abort. Continuing in `)
 
@@ -57,7 +48,12 @@ export async function runDeinit(targetPath, opts) {
     process.exit(1)
   }
 
-  if (force && !dryRun) await countdown(10)
+  // --force skips per-file SHA1 verification. In an interactive terminal we give
+  // a 10s Ctrl-C window; in non-TTY (CI) the explicit --force is taken at face value.
+  if (force && !dryRun) {
+    if (process.stdin.isTTY) await countdown(10)
+    else process.stdout.write(`${DIM}(non-interactive: --force applied without countdown)${RESET}\n`)
+  }
 
   for (const file of manifest.files) {
     const absPath = path.join(targetPath, file.path)

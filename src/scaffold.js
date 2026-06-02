@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { execSync } from 'node:child_process'
+import { execFileSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -39,6 +39,21 @@ function collectFiles(agents) {
 }
 
 /**
+ * Full list of files MADD owns for the given agents, with their template source path.
+ * This is the source of truth for the manifest — independent of what a given
+ * scaffold run copied vs skipped.
+ * @param {string[]} agents
+ * @returns {Array<{ path: string, srcPath: string, agent: string }>}
+ */
+export function expectedFiles(agents) {
+  const out = []
+  for (const [rel, { src, agent }] of collectFiles(agents)) {
+    out.push({ path: rel, srcPath: src, agent })
+  }
+  return out
+}
+
+/**
  * @param {string} srcPath
  * @param {string} destPath
  * @returns {string} unified diff (diff -u) or empty string if identical
@@ -46,7 +61,7 @@ function collectFiles(agents) {
 export function diffFiles(srcPath, destPath) {
   if (!fs.existsSync(destPath)) return ''
   try {
-    execSync(`diff -u "${destPath}" "${srcPath}"`, { stdio: 'pipe' })
+    execFileSync('diff', ['-u', destPath, srcPath], { stdio: 'pipe' })
     return ''
   } catch (err) {
     return err.stdout?.toString() ?? ''
@@ -57,6 +72,24 @@ function copyFile(src, dest) {
   fs.mkdirSync(path.dirname(dest), { recursive: true })
   fs.copyFileSync(src, dest)
   if (dest.endsWith('.sh')) fs.chmodSync(dest, 0o755)
+}
+
+/**
+ * Append `entry` to the target's .gitignore if not already present.
+ * Never recorded in the manifest — deinit must not remove the user's .gitignore.
+ * @param {string} targetPath
+ * @param {string} entry
+ * @returns {boolean} true if the file was modified
+ */
+export function ensureGitignore(targetPath, entry) {
+  const gi = path.join(targetPath, '.gitignore')
+  let content = fs.existsSync(gi) ? fs.readFileSync(gi, 'utf8') : ''
+  const present = content.split('\n').some((l) => l.trim() === entry)
+  if (present) return false
+  if (content && !content.endsWith('\n')) content += '\n'
+  content += `${entry}\n`
+  fs.writeFileSync(gi, content)
+  return true
 }
 
 /**

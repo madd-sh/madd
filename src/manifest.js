@@ -3,6 +3,7 @@ import path from 'node:path'
 import crypto from 'node:crypto'
 
 export const MANIFEST_REL = '.madd/manifest.yaml'
+export const MANIFEST_VERSION = '1'
 
 export function sha1(filePath) {
   return crypto.createHash('sha1').update(fs.readFileSync(filePath)).digest('hex')
@@ -10,12 +11,13 @@ export function sha1(filePath) {
 
 /**
  * @param {string} targetPath
- * @param {{ maddVersion: string, agents: string[], files: Array<{path: string, sha1: string, agent: string}> }} data
+ * @param {{ maddVersion: string, installedAt: string, agents: string[], files: Array<{path: string, sha1: string, agent: string}> }} data
  */
-export function writeManifest(targetPath, { maddVersion, agents, files }) {
+export function writeManifest(targetPath, { maddVersion, installedAt, agents, files }) {
   const lines = [
+    `manifestVersion: "${MANIFEST_VERSION}"`,
     `maddVersion: "${maddVersion}"`,
-    `installedAt: "${new Date().toISOString()}"`,
+    `installedAt: "${installedAt}"`,
     `agents:`,
     ...agents.map((a) => `  - ${a}`),
     `files:`,
@@ -29,22 +31,25 @@ export function writeManifest(targetPath, { maddVersion, agents, files }) {
 
 /**
  * @param {string} targetPath
- * @returns {{ maddVersion: string, installedAt: string, agents: string[], files: Array<{path: string, sha1: string, agent: string}> } | null}
+ * @returns {{ manifestVersion: string, maddVersion: string, installedAt: string, agents: string[], files: Array<{path: string, sha1: string, agent: string}> } | null}
  */
 export function readManifest(targetPath) {
   const src = path.join(targetPath, MANIFEST_REL)
   if (!fs.existsSync(src)) return null
 
   const lines = fs.readFileSync(src, 'utf8').split('\n')
-  const result = { maddVersion: '', installedAt: '', agents: [], files: [] }
+  const result = { manifestVersion: '', maddVersion: '', installedAt: '', agents: [], files: [] }
   let section = null
   let current = null
+  const unquote = (s) => s.trim().replace(/^"|"$/g, '')
 
   for (const line of lines) {
-    if (line.startsWith('maddVersion:')) {
-      result.maddVersion = line.slice('maddVersion:'.length).trim().replace(/^"|"$/g, '')
+    if (line.startsWith('manifestVersion:')) {
+      result.manifestVersion = unquote(line.slice('manifestVersion:'.length))
+    } else if (line.startsWith('maddVersion:')) {
+      result.maddVersion = unquote(line.slice('maddVersion:'.length))
     } else if (line.startsWith('installedAt:')) {
-      result.installedAt = line.slice('installedAt:'.length).trim().replace(/^"|"$/g, '')
+      result.installedAt = unquote(line.slice('installedAt:'.length))
     } else if (line === 'agents:') {
       section = 'agents'
     } else if (line === 'files:') {
