@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { readManifest, sha1, MANIFEST_REL } from './manifest.js'
+import { readManifest, writeManifest, sha1, MANIFEST_REL } from './manifest.js'
 import { removeEmptyDirs } from './fsutil.js'
 
 const RED = '\x1b[31m'
@@ -80,9 +80,21 @@ export async function runDeinit(targetPath, opts) {
 
   if (!dryRun) {
     const manifestAbs = path.join(targetPath, MANIFEST_REL)
-    if (fs.existsSync(manifestAbs)) {
-      fs.unlinkSync(manifestAbs)
-      removeEmptyDirs(path.dirname(manifestAbs), targetPath)
+    if (summary.skipped.length === 0) {
+      // Full uninstall: nothing left to track.
+      if (fs.existsSync(manifestAbs)) {
+        fs.unlinkSync(manifestAbs)
+        removeEmptyDirs(path.dirname(manifestAbs), targetPath)
+      }
+    } else {
+      // Partial: some modified files were kept — keep tracking only those.
+      const kept = new Set(summary.skipped)
+      writeManifest(targetPath, {
+        maddVersion: manifest.maddVersion,
+        installedAt: manifest.installedAt,
+        agents: manifest.agents,
+        files: manifest.files.filter((f) => kept.has(f.path)),
+      })
     }
   }
 
