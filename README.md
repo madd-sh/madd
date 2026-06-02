@@ -113,6 +113,21 @@ Read `.madd/README.md` in your project for a full explanation of the contract sy
 
 ---
 
+## Security
+
+`madd` installs executable content (shell hooks + LLM-executed agent instructions),
+so it is treated as supply-chain-sensitive: SHA-256 integrity manifest, zero
+dependencies and zero install scripts, path-traversal guard, signed provenance-backed
+releases (SLSA Build L2), GPG-signed commits, pinned/hardened CI, CodeQL and Scorecard.
+
+See [SECURITY.md](SECURITY.md) for the threat model and reporting, and
+[RELEASING.md](RELEASING.md) for the release pipeline.
+
+```sh
+npx @madd-sh/cli@<version> init --dry-run --yes .   # inspect before installing
+npm audit signatures                                # verify provenance after install
+```
+
 ## Requirements
 
 - Node.js >= 18

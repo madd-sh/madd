@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { readManifest, writeManifest, sha1, MANIFEST_REL } from './manifest.js'
+import { readManifest, writeManifest, hashFile, MANIFEST_REL, MANIFEST_VERSION } from './manifest.js'
 import { removeEmptyDirs } from './fsutil.js'
 
 const RED = '\x1b[31m'
@@ -48,6 +48,16 @@ export async function runDeinit(targetPath, opts) {
     process.exit(1)
   }
 
+  // A manifest written by an older format records hashes we can no longer verify;
+  // every file would look "modified" and be kept. Fail safe and tell the user.
+  if (manifest.manifestVersion !== MANIFEST_VERSION) {
+    process.stderr.write(
+      `Manifest format is v${manifest.manifestVersion || '?'}, this CLI expects v${MANIFEST_VERSION}.\n` +
+      `Re-run \`madd init\` to regenerate it before deinit.\n`,
+    )
+    process.exit(1)
+  }
+
   // --force skips per-file SHA1 verification. In an interactive terminal we give
   // a 10s Ctrl-C window; in non-TTY (CI) the explicit --force is taken at face value.
   if (force && !dryRun) {
@@ -64,8 +74,8 @@ export async function runDeinit(targetPath, opts) {
     }
 
     if (!force) {
-      const current = sha1(absPath)
-      if (current !== file.sha1) {
+      const current = hashFile(absPath)
+      if (current !== file.sha256) {
         summary.skipped.push(file.path)
         continue
       }

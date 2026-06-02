@@ -3,15 +3,22 @@ import path from 'node:path'
 import crypto from 'node:crypto'
 
 export const MANIFEST_REL = '.madd/manifest.yaml'
-export const MANIFEST_VERSION = '1'
+export const MANIFEST_VERSION = '2'
 
-export function sha1(filePath) {
-  return crypto.createHash('sha1').update(fs.readFileSync(filePath)).digest('hex')
+/**
+ * SHA-256 of a file's contents, hex-encoded.
+ * SHA-256 (not SHA-1) because this hash is an integrity control: deinit trusts
+ * it to decide what is safe to delete, so it must be collision-resistant.
+ * @param {string} filePath
+ * @returns {string}
+ */
+export function hashFile(filePath) {
+  return crypto.createHash('sha256').update(fs.readFileSync(filePath)).digest('hex')
 }
 
 /**
  * @param {string} targetPath
- * @param {{ maddVersion: string, installedAt: string, agents: string[], files: Array<{path: string, sha1: string, agent: string}> }} data
+ * @param {{ maddVersion: string, installedAt: string, agents: string[], files: Array<{path: string, sha256: string, agent: string}> }} data
  */
 export function writeManifest(targetPath, { maddVersion, installedAt, agents, files }) {
   const lines = [
@@ -21,7 +28,7 @@ export function writeManifest(targetPath, { maddVersion, installedAt, agents, fi
     `agents:`,
     ...agents.map((a) => `  - ${a}`),
     `files:`,
-    ...files.map((f) => `  - path: ${f.path}\n    sha1: ${f.sha1}\n    agent: ${f.agent}`),
+    ...files.map((f) => `  - path: ${f.path}\n    sha256: ${f.sha256}\n    agent: ${f.agent}`),
     '',
   ]
   const dest = path.join(targetPath, MANIFEST_REL)
@@ -31,7 +38,7 @@ export function writeManifest(targetPath, { maddVersion, installedAt, agents, fi
 
 /**
  * @param {string} targetPath
- * @returns {{ manifestVersion: string, maddVersion: string, installedAt: string, agents: string[], files: Array<{path: string, sha1: string, agent: string}> } | null}
+ * @returns {{ manifestVersion: string, maddVersion: string, installedAt: string, agents: string[], files: Array<{path: string, sha256: string, agent: string}> } | null}
  */
 export function readManifest(targetPath) {
   const src = path.join(targetPath, MANIFEST_REL)
@@ -60,9 +67,9 @@ export function readManifest(targetPath) {
       result.agents.push(line.slice(4).trim())
     } else if (section === 'files' && line.startsWith('  - path:')) {
       if (current) result.files.push(current)
-      current = { path: line.slice('  - path:'.length).trim(), sha1: '', agent: '' }
-    } else if (section === 'files' && line.startsWith('    sha1:')) {
-      if (current) current.sha1 = line.slice('    sha1:'.length).trim()
+      current = { path: line.slice('  - path:'.length).trim(), sha256: '', agent: '' }
+    } else if (section === 'files' && line.startsWith('    sha256:')) {
+      if (current) current.sha256 = line.slice('    sha256:'.length).trim()
     } else if (section === 'files' && line.startsWith('    agent:')) {
       if (current) current.agent = line.slice('    agent:'.length).trim()
     }

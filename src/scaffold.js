@@ -108,9 +108,18 @@ export async function scaffold(agents, targetPath, opts, confirmFn = null) {
   const { force = false, dryRun = false, update = false } = opts
   const summary = { copied: [], skipped: [], backed_up: [] }
   const files = collectFiles(agents)
+  const resolvedTarget = path.resolve(targetPath)
 
   for (const [relPath, { src: srcPath, agent }] of files) {
     const destPath = path.join(targetPath, relPath)
+
+    // Defense in depth: template paths are ours, but never let a crafted relPath
+    // ('..', absolute) write outside the target directory.
+    const resolvedDest = path.resolve(destPath)
+    if (resolvedDest !== resolvedTarget && !resolvedDest.startsWith(resolvedTarget + path.sep)) {
+      throw new Error(`refusing to write outside target: ${relPath}`)
+    }
+
     const exists = fs.existsSync(destPath)
 
     if (!exists) {

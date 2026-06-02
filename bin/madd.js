@@ -8,7 +8,7 @@ import { scaffold, expectedFiles, ensureGitignore } from '../src/scaffold.js'
 import { runDoctor } from '../src/doctor.js'
 import { runDeinit, printDeinitSummary } from '../src/deinit.js'
 import { runStatus } from '../src/status.js'
-import { writeManifest, readManifest, sha1, MANIFEST_REL } from '../src/manifest.js'
+import { writeManifest, readManifest, hashFile, MANIFEST_REL } from '../src/manifest.js'
 import { removeEmptyDirs } from '../src/fsutil.js'
 
 const pkg = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
@@ -81,7 +81,7 @@ function parseArgs(argv) {
 function recordManifest(targetPath, selected) {
   const files = expectedFiles(selected)
     .filter((f) => fs.existsSync(path.join(targetPath, f.path)))
-    .map((f) => ({ path: f.path, sha1: sha1(f.srcPath), agent: f.agent }))
+    .map((f) => ({ path: f.path, sha256: hashFile(f.srcPath), agent: f.agent }))
   writeManifest(targetPath, {
     maddVersion: VERSION,
     installedAt: new Date().toISOString(),
@@ -152,7 +152,7 @@ async function cmdUpdate(targetPath, opts) {
     for (const o of orphans) {
       const abs = path.join(targetPath, o.path)
       if (!fs.existsSync(abs)) continue
-      if (sha1(abs) === o.sha1) {
+      if (hashFile(abs) === o.sha256) {
         if (!dryRun) { fs.unlinkSync(abs); removeEmptyDirs(path.dirname(abs), targetPath) }
         process.stdout.write(`  ${RED}-${RESET} orphan removed: ${o.path}\n`)
       } else {

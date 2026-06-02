@@ -1,0 +1,8 @@
+# Every change requires maintainer review. Template content under agents/ is the
+# highest-risk surface (it becomes executable / LLM-executed on install), so it is
+# called out explicitly.
+*                 @frntn
+/agents/          @frntn
+/.github/         @frntn
+/bin/             @frntn
+/src/             @frntn
