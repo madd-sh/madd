@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { readManifest, sha1 } from './manifest.js'
+import { readManifest, hashFile } from './manifest.js'
 
 /**
  * @typedef {{ path: string, agent: string, state: 'unchanged'|'modified'|'missing' }} FileStatus
@@ -29,7 +29,7 @@ export async function runStatus(targetPath, currentVersion) {
     const abs = path.join(targetPath, f.path)
     let state
     if (!fs.existsSync(abs)) state = 'missing'
-    else state = sha1(abs) === f.sha1 ? 'unchanged' : 'modified'
+    else state = hashFile(abs) === f.sha256 ? 'unchanged' : 'modified'
     return { path: f.path, agent: f.agent, state }
   })
 

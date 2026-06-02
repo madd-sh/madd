@@ -11,6 +11,7 @@ import { expectedFiles, diffFiles } from '../src/scaffold.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const BIN = path.join(__dirname, '..', 'bin', 'madd.js')
+const PKG = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'))
 
 function tmp() {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'madd-test-'))
@@ -32,14 +33,14 @@ test('manifest roundtrip: write then read returns equal data', () => {
     installedAt: '2026-06-02T00:00:00.000Z',
     agents: ['claude-code', 'codex'],
     files: [
-      { path: '.madd/state.json', sha1: 'abc123', agent: 'shared' },
-      { path: '.claude/settings.json', sha1: 'def456', agent: 'claude-code' },
+      { path: '.madd/state.json', sha256: 'abc123', agent: 'shared' },
+      { path: '.claude/settings.json', sha256: 'def456', agent: 'claude-code' },
     ],
   }
   writeManifest(dir, data)
   const back = readManifest(dir)
   assert.equal(back.maddVersion, data.maddVersion)
-  assert.equal(back.manifestVersion, '1')
+  assert.equal(back.manifestVersion, '2')
   assert.deepEqual(back.agents, data.agents)
   assert.deepEqual(back.files, data.files)
   fs.rmSync(dir, { recursive: true, force: true })
@@ -122,5 +123,22 @@ test('deinit with all files pristine removes the manifest entirely', () => {
   run(['deinit', dir], dir)
   assert.ok(!fs.existsSync(path.join(dir, '.madd/manifest.yaml')))
   assert.ok(!fs.existsSync(path.join(dir, '.madd')))
+  fs.rmSync(dir, { recursive: true, force: true })
+})
+
+test('package declares no install-time lifecycle scripts and no dependencies', () => {
+  const scripts = PKG.scripts ?? {}
+  for (const hook of ['preinstall', 'install', 'postinstall', 'prepare', 'prepublish']) {
+    assert.equal(scripts[hook], undefined, `package.json must not define a "${hook}" script`)
+  }
+  assert.deepEqual(PKG.dependencies ?? {}, {}, 'package must ship with zero runtime dependencies')
+})
+
+test('manifest hashes are SHA-256 (64 hex chars), not SHA-1', () => {
+  const dir = tmp()
+  run(['init', '--yes', dir], dir)
+  const m = readManifest(dir)
+  assert.equal(m.manifestVersion, '2')
+  assert.ok(m.files.every((f) => /^[0-9a-f]{64}$/.test(f.sha256)))
   fs.rmSync(dir, { recursive: true, force: true })
 })
