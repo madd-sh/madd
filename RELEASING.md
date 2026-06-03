@@ -28,17 +28,29 @@ on the key and a verified email on your account. This key has `m@tthieu.fr`; the
 currently commits as `matthieu.fronton@frog.co` (also a UID). Make sure the email you
 commit with is verified on GitHub, or set `git config user.email m@tthieu.fr`.
 
-### 2. npm: trusted publishing + 2FA
+### 2. npm: trusted publishing (tokenless) + 2FA
 
-1. Create the npm org/scope `@madd-sh` and the package (first publish can be manual
-   or via the workflow once the token exists).
-2. Enable **2FA** on the npm account (auth + writes).
-3. Provenance: the release workflow already passes `--provenance` with `id-token: write`.
-   For it to work the repo must be **public** and publishing must come from GitHub Actions.
-4. Provide the publish credential as a repo secret named `NPM_TOKEN`
-   (npm > Access Tokens > Granular, scoped to `@madd-sh/cli`, publish-only).
-   - Preferred upgrade: configure npm **trusted publishing (OIDC)** for the package so
-     no long-lived token is stored at all. Once enabled, remove `NPM_TOKEN`.
+The release workflow publishes via **OIDC trusted publishing** — no `NPM_TOKEN`
+is stored anywhere. GitHub Actions proves its identity to npm per-run.
+
+1. Create the npm org/scope `@madd-sh` (done) and enable **2FA** on the account.
+2. Configure the trusted publisher for the package on npmjs.org:
+   package settings > **Trusted Publisher** > GitHub Actions, with
+   org/repo `madd-sh/madd` and workflow `release.yml`.
+3. Provenance + tokenless require: repo **public** (done), `id-token: write`
+   (set in `release.yml`), and **npm >= 11.5.1** on the runner (the workflow runs
+   `npm install -g npm@latest` to guarantee this).
+
+Bootstrap note: npm configures a trusted publisher on an **existing** package, so the
+package name must exist first. If the npmjs UI won't let you pre-register the publisher
+for `@madd-sh/cli`, do one bootstrap publish to create it, then enable trusted
+publishing for every release after that:
+
+```sh
+npm login                              # one-time, on your machine
+npm publish --access public            # bootstrap v1.0.0 (no provenance on this one)
+# then configure the trusted publisher and tag v1.0.1+ via CI (provenance from there on)
+```
 
 ### 3. GitHub branch protection on `main`
 
