@@ -13,9 +13,10 @@ Because of this, the project is treated as a supply-chain-sensitive tool.
 
 ## Supported versions
 
-Security fixes are released for the latest `1.x` minor. Older minors are not
-backported. Always install the latest version; `madd status` reports whether
-your installed `maddVersion` matches the current package.
+The project is in initial development (`0.x`): the public surface may still change
+between minor versions. Security fixes are released on the latest `0.x` minor only.
+Always install the latest version; `madd status` reports whether your installed
+`maddVersion` matches the current package.
 
 ## Reporting a vulnerability
 

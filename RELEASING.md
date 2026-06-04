@@ -48,7 +48,7 @@ publishing for every release after that:
 
 ```sh
 npm login                              # one-time, on your machine
-npm publish --access public            # bootstrap v1.0.0 (no provenance on this one)
+npm publish --access public            # bootstrap v0.1.0 (no provenance on this one)
 # then configure the trusted publisher and tag v1.0.1+ via CI (provenance from there on)
 ```
 
