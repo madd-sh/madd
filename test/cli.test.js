@@ -8,6 +8,7 @@ import { execFileSync } from 'node:child_process'
 
 import { writeManifest, readManifest } from '../src/manifest.js'
 import { expectedFiles, diffFiles } from '../src/scaffold.js'
+import { renderSelectUI } from '../src/tui.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const BIN = path.join(__dirname, '..', 'bin', 'madd.js')
@@ -132,6 +133,20 @@ test('package declares no install-time lifecycle scripts and no dependencies', (
     assert.equal(scripts[hook], undefined, `package.json must not define a "${hook}" script`)
   }
   assert.deepEqual(PKG.dependencies ?? {}, {}, 'package must ship with zero runtime dependencies')
+})
+
+test('TUI render emits real ANSI escape sequences (ESC byte present)', () => {
+  const lines = renderSelectUI(0, new Set(['claude-code']), {
+    'claude-code': true, codex: false, 'mistral-vibe': false,
+    opencode: false, 'docker-cagent': false,
+  })
+  const out = lines.join('\n')
+  // Regression guard: a missing ESC byte (0x1b) ships a TUI that prints
+  // "[36m" literally and never repaints. Assert the real control byte is there.
+  assert.ok(out.includes('\x1b['), 'expected real ESC sequences in the rendered TUI')
+  assert.ok(/\x1b\[3\dm/.test(out), 'expected SGR colour codes')
+  assert.ok(out.includes('\x1b[32mx'), 'selected agent should render a green check mark')
+  assert.ok(out.includes('Claude Code'), 'agent labels should be present')
 })
 
 test('manifest hashes are SHA-256 (64 hex chars), not SHA-1', () => {

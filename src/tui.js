@@ -1,6 +1,6 @@
 import { AGENTS } from './detect-agents.js'
 
-const ESC = ''
+const ESC = '\x1b'
 const GREEN = `${ESC}[32m`
 const CYAN = `${ESC}[36m`
 const DIM = `${ESC}[2m`
@@ -21,12 +21,12 @@ const KEYS = {
 function write(s) { process.stdout.write(s) }
 
 function clearLines(n) {
-  write('[2K')
-  for (let i = 1; i < n; i++) write('[1A[2K')
+  write(`${ESC}[2K`)
+  for (let i = 1; i < n; i++) write(`${ESC}[1A${ESC}[2K`)
   write('\r')
 }
 
-function renderSelectUI(cursor, selected, detected) {
+export function renderSelectUI(cursor, selected, detected) {
   const lines = [
     `${BOLD}Select agents to scaffold MADD for:${RESET}`,
     `${DIM}(Up/Down: navigate  Space: toggle  a: all  Enter: confirm  Ctrl-C: abort)${RESET}`,
