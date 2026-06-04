@@ -1,6 +1,6 @@
 # Security Policy
 
-`@madd-sh/cli` (`madd`) installs **executable content** into a project:
+`@madd-sh/madd` (`madd`) installs **executable content** into a project:
 
 - Shell scripts under `.claude/hooks/*.sh` that are made executable (`chmod 755`)
   and wired into the coding agent's lifecycle hooks. These run on the developer's
@@ -34,7 +34,7 @@ Please report privately via GitHub **Security Advisories**
 |---|--------|--------|------------|------------------|
 | R1 | Malicious instructions in templates (prompt injection in agents/skills/rules) | Agent misuse of its tools (RCE-adjacent via shell tool) | Medium | Code review of `agents/**`, CODEOWNERS, signed releases, public diff via `npx <version>` |
 | R2 | Tampered/compromised npm release (account takeover, CI compromise) | Arbitrary file write + executable hooks on every install | Low | npm provenance (SLSA build L2), OIDC publish (no long-lived token), 2FA, branch protection, pinned CI |
-| R3 | Typosquatting / dependency confusion | User installs a hostile look-alike | Medium | Scoped name `@madd-sh/cli`, README canonical install, zero dependencies |
+| R3 | Typosquatting / dependency confusion | User installs a hostile look-alike | Medium | Scoped name `@madd-sh/madd`, README canonical install, zero dependencies |
 | R4 | Malicious `postinstall`/lifecycle script | Code execution at `npm install` time | Low | Zero install scripts (enforced by test), zero dependencies |
 | R5 | Path traversal via a crafted template path | Write outside the target project | Low | `scaffold` rejects any destination resolving outside the target dir |
 | R6 | `deinit` deletes user-modified or unrelated files | Data loss | Low | SHA-256 manifest; only files matching the recorded template hash are removed; pre-existing/edited files are kept |
@@ -61,10 +61,10 @@ Please report privately via GitHub **Security Advisories**
 
 ```sh
 # Inspect before installing (no write):
-npx @madd-sh/cli@<version> init --dry-run --yes .
+npx @madd-sh/madd@<version> init --dry-run --yes .
 
 # Verify the published package's provenance:
-npm view @madd-sh/cli
+npm view @madd-sh/madd
 npm audit signatures        # checks registry signatures + provenance attestations
 
 # After install, audit local drift:

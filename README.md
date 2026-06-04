@@ -124,7 +124,7 @@ See [SECURITY.md](SECURITY.md) for the threat model and reporting, and
 [RELEASING.md](RELEASING.md) for the release pipeline.
 
 ```sh
-npx @madd-sh/cli@<version> init --dry-run --yes .   # inspect before installing
+npx @madd-sh/madd@<version> init --dry-run --yes .   # inspect before installing
 npm audit signatures                                # verify provenance after install
 ```
 

@@ -43,13 +43,13 @@ is stored anywhere. GitHub Actions proves its identity to npm per-run.
 
 Bootstrap note: npm configures a trusted publisher on an **existing** package, so the
 package name must exist first. If the npmjs UI won't let you pre-register the publisher
-for `@madd-sh/cli`, do one bootstrap publish to create it, then enable trusted
+for `@madd-sh/madd`, do one bootstrap publish to create it, then enable trusted
 publishing for every release after that:
 
 ```sh
 npm login                              # one-time, on your machine
 npm publish --access public            # bootstrap v0.1.0 (no provenance on this one)
-# then configure the trusted publisher and tag v1.0.1+ via CI (provenance from there on)
+# then configure the trusted publisher and tag v0.1.x via CI (provenance from there on)
 ```
 
 ### 3. GitHub branch protection on `main`
@@ -89,7 +89,7 @@ The tag push triggers `.github/workflows/release.yml`, which:
 ## Verifying a published release
 
 ```sh
-npm view @madd-sh/cli
+npm view @madd-sh/madd
 npm audit signatures      # verifies registry signature + provenance attestation
 ```
 

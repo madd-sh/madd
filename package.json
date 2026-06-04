@@ -1,5 +1,5 @@
 {
-  "name": "@madd-sh/cli",
+  "name": "@madd-sh/madd",
   "version": "0.1.1",
   "description": "Multi-Agent Driven Development CLI",
   "type": "module",
