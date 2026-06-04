@@ -1,10 +1,18 @@
 {
   "name": "@madd-sh/cli",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Multi-Agent Driven Development CLI",
   "type": "module",
+  "homepage": "https://madd.sh",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/madd-sh/madd.git"
+  },
+  "bugs": {
+    "url": "https://github.com/madd-sh/madd/issues"
+  },
   "bin": {
-    "madd": "./bin/madd.js"
+    "madd": "bin/madd.js"
   },
   "scripts": {
     "test": "node --test"
