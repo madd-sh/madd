@@ -3,7 +3,7 @@
 The CLI for [MADD (Multi-Agent Driven Development)](https://madd.sh).
 
 ```sh
-npx madd init
+npx @madd-sh/madd init
 ```
 
 Detects which coding agents are present in your project, lets you select which ones to scaffold, and installs the full MADD methodology stack — agents, hooks, skills, contract files — without touching your existing code.
