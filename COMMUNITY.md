@@ -18,7 +18,7 @@ MADD (Multi-Agent Driven Development) is built in the open. This page explains w
 - **Announcements** - releases and notable changes (maintainer-posted).
 - **Ideas / RFC** - propose an evolution of the method or the tooling. This is where the method changes start.
 - **Q&A** - ask anything about applying MADD. Answers from peers are as valuable as answers from maintainers; mark the one that helped.
-- **Show & tell** - case studies, retro-specs, wins and failures. Failures are as useful as successes.
+- **Show and tell** - case studies, retro-specs, wins and failures. Failures are as useful as successes.
 - **General** - everything else.
 
 ## How the method evolves: lightweight RFCs
@@ -34,7 +34,7 @@ This is how the method stays anchored in real use instead of one person's opinio
 
 ## Sharing a case study
 
-Applied MADD on something real? That is the highest-value contribution you can make. Post it in **Show & tell** with: context, what you did, what worked, what did not, and any numbers you can share. A sanitized retro-spec is gold. You can also open a Pull Request to add it to the case studies on the site.
+Applied MADD on something real? That is the highest-value contribution you can make. Post it in **Show and tell** with: context, what you did, what worked, what did not, and any numbers you can share. A sanitized retro-spec is gold. You can also open a Pull Request to add it to the case studies on the site.
 
 ## Good first ways to contribute
 
