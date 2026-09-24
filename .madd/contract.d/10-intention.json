@@ -1,0 +1,24 @@
+{
+  "intention": {
+    "context": "Make MADD specifications verifiable without requiring an agent framework, and use this change as its first controlled delivery pilot.",
+    "objectives": [
+      {
+        "id": "OBJ-001",
+        "description": "A human or agent can validate a minimal contract, bind a check and inspect independent evidence without executing specification content."
+      }
+    ],
+    "out_of_scope": [
+      "Qareen migration M05 awaits the relaunch retrospective.",
+      "No package publication or site deployment from a review branch.",
+      "No automatic migration of legacy agent contracts."
+    ],
+    "risks": [
+      {
+        "id": "RISK-001",
+        "description": "An editable status could be mistaken for trustworthy delivery evidence.",
+        "impact": "high",
+        "mitigation": "Separate structural validation, binding and externally authenticated delivery evidence."
+      }
+    ]
+  }
+}

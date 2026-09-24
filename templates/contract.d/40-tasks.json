@@ -1,0 +1,25 @@
+{
+  "tasks": {
+    "items": [
+      {
+        "id": "TASK-001",
+        "title": "Implement the first requirement",
+        "status": "pending",
+        "requirements": [
+          "REQ-F-001"
+        ]
+      }
+    ],
+    "tests": [
+      {
+        "id": "TEST-001",
+        "type": "contract",
+        "requirement": "REQ-F-001",
+        "description": "Replace with the acceptance check.",
+        "binding": "planned",
+        "ref": null,
+        "status": "pending"
+      }
+    ]
+  }
+}

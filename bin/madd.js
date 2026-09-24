@@ -10,6 +10,8 @@ import { runDeinit, printDeinitSummary } from '../src/deinit.js'
 import { runStatus } from '../src/status.js'
 import { writeManifest, readManifest, hashFile, MANIFEST_REL } from '../src/manifest.js'
 import { removeEmptyDirs } from '../src/fsutil.js'
+import { initContract, runValidate, assertLegacyTarget } from '../src/contract.js'
+import { runVerify } from '../src/evidence.js'
 
 const pkg = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
 const VERSION = pkg.version
@@ -28,14 +30,21 @@ Usage:
   madd status [path]    Show install state (version, modified/missing files)
   madd update [path]    Update MADD files with diff + confirm; prune orphans
   madd deinit [path]    Remove unmodified MADD files (reads manifest)
-  madd doctor [path]    Validate an existing MADD install
+  madd doctor [path]    Check agent installation health (not contract validity)
+  madd validate [path]  Validate a 0.2 contract without installing agents
+  madd verify [path]    Verify CI + independent review receipts for a clean revision
 
 Options:
   --force, -f    init: overwrite existing (backup to .madd.bak/)
                  deinit: skip SHA1 check, 10s countdown before delete (TTY only)
   --dry-run      Show what would happen without writing anything
   --yes, -y      Skip TUI, auto-select all detected agents
-  --json         Machine-readable output (status, doctor)
+  --contract-only  init: create a minimal contract without agents or hooks
+  --fraction ID    validate: select a delivery fraction
+  --require-bound  validate: fail if a selected check has no local file binding
+  --evidence FILE   verify: signed CI and review receipts
+  --trust FILE      verify: protected trust policy outside the candidate tree
+  --json         Machine-readable output (status, doctor, validate)
   --version, -v  Print version
   --help, -h     Print this help
 
@@ -43,20 +52,31 @@ Supported agents: ${AGENTS.map((a) => a.key).join(', ')}
 `
 
 function parseArgs(argv) {
-  const args = { command: null, targetPath: '.', force: false, dryRun: false, yes: false, json: false }
+  const args = { command: null, targetPath: '.', force: false, dryRun: false, yes: false, json: false, contractOnly: false, requireBound: false }
   const positional = []
 
-  for (const arg of argv) {
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i]
     if (arg === '--help' || arg === '-h') { process.stdout.write(HELP + '\n'); process.exit(0) }
     if (arg === '--version' || arg === '-v') { process.stdout.write(VERSION + '\n'); process.exit(0) }
     if (arg === '--force' || arg === '-f') { args.force = true; continue }
     if (arg === '--dry-run') { args.dryRun = true; continue }
     if (arg === '--yes' || arg === '-y') { args.yes = true; continue }
     if (arg === '--json') { args.json = true; continue }
+    if (arg === '--contract-only') { args.contractOnly = true; continue }
+    if (arg === '--require-bound') { args.requireBound = true; continue }
+    if (['--fraction', '--evidence', '--trust'].includes(arg)) {
+      const value = argv[++i]
+      if (!value || value.startsWith('-')) throw new Error(`${arg} requires a value`)
+      if (arg === '--fraction' && !/^FRAC-\d+$/.test(value)) throw new Error('--fraction requires FRAC-<number>')
+      args[arg.slice(2)] = value; continue
+    }
+    if (arg.startsWith('-')) throw new Error(`Unknown option: ${arg}`)
     if (!arg.startsWith('-')) positional.push(arg)
   }
 
-  const COMMANDS = ['init', 'status', 'update', 'deinit', 'doctor']
+  const COMMANDS = ['init', 'status', 'update', 'deinit', 'doctor', 'validate', 'verify']
+  if (positional.length > 2) throw new Error('Expected one command and at most one path')
   if (positional.length === 0) { process.stdout.write(HELP + '\n'); process.exit(0) }
 
   const first = positional[0]
@@ -64,11 +84,13 @@ function parseArgs(argv) {
     args.command = first
     if (positional[1]) args.targetPath = positional[1]
   } else {
-    process.stderr.write(`Unknown command: ${first}\n${HELP}\n`)
-    process.exit(1)
+    throw new Error(`Unknown command: ${first}`)
   }
 
   args.targetPath = path.resolve(args.targetPath)
+  if (args.contractOnly && args.command !== 'init') throw new Error('--contract-only is an init option')
+  if ((args.fraction || args.requireBound) && !['validate', 'verify'].includes(args.command)) throw new Error('--fraction and --require-bound are validation options')
+  if ((args.trust || args.evidence) && args.command !== 'verify') throw new Error('--trust and --evidence are verify options')
   return args
 }
 
@@ -93,6 +115,14 @@ function recordManifest(targetPath, selected) {
 
 async function cmdInit(targetPath, opts) {
   const { force, dryRun, yes } = opts
+
+  if (opts.contractOnly) {
+    if (force) throw new Error('Contract init never overwrites existing specifications')
+    const result = initContract(targetPath, { dryRun })
+    process.stdout.write(`${result.created ? 'Created' : 'Would create'} five contract files, no agent installation.\nRun madd validate, then bind your acceptance check.\n`)
+    return
+  }
+  assertLegacyTarget(targetPath)
 
   process.stdout.write(`\nmadd v${VERSION}\n`)
   process.stdout.write(`Target: ${targetPath}\n`)
@@ -126,6 +156,7 @@ async function cmdInit(targetPath, opts) {
 }
 
 async function cmdUpdate(targetPath, opts) {
+  assertLegacyTarget(targetPath)
   const { dryRun } = opts
   const manifestBefore = readManifest(targetPath)
 
@@ -178,7 +209,8 @@ async function cmdStatus(targetPath, opts) {
 
   if (opts.json) {
     process.stdout.write(JSON.stringify(report, null, 2) + '\n')
-    process.exit(report.installed ? 0 : 1)
+    process.exitCode = report.installed ? 0 : 1
+    return
   }
 
   if (!report.installed) {
@@ -219,7 +251,8 @@ async function cmdDoctor(targetPath, opts) {
 
   if (opts.json) {
     process.stdout.write(JSON.stringify({ ok: allOk, reports }, null, 2) + '\n')
-    process.exit(allOk ? 0 : 1)
+    process.exitCode = allOk ? 0 : 1
+    return
   }
 
   process.stdout.write(`\nmadd doctor — ${targetPath}\n\n`)
@@ -236,17 +269,24 @@ async function cmdDoctor(targetPath, opts) {
 }
 
 async function main() {
-  const args = parseArgs(process.argv.slice(2))
+  let args
   try {
+    args = parseArgs(process.argv.slice(2))
+    if (['validate', 'verify'].includes(args.command)) {
+      const report = args.command === 'verify' ? runVerify(args.targetPath, args) : runValidate(args.targetPath, args)
+      process.stdout.write(args.json ? JSON.stringify(report, null, 2) + '\n' : `Contract valid; checks ${report.checksBound ? 'bound' : 'planned'}; delivery ${report.delivered ? 'verified against trusted receipts' : 'not verified'}.\n`)
+      return
+    }
     if (args.command === 'doctor') await cmdDoctor(args.targetPath, args)
     else if (args.command === 'status') await cmdStatus(args.targetPath, args)
     else if (args.command === 'deinit') await cmdDeinit(args.targetPath, args)
     else if (args.command === 'update') await cmdUpdate(args.targetPath, args)
     else await cmdInit(args.targetPath, args)
   } catch (err) {
-    if (err.message === 'Aborted') { process.stdout.write('\nAborted.\n'); process.exit(1) }
+    process.exitCode = 1
+    if (args?.json || process.argv.includes('--json')) { process.stdout.write(JSON.stringify({ ok: false, delivered: false, error: err.message }) + '\n'); return }
+    if (err.message === 'Aborted') { process.stdout.write('\nAborted.\n'); return }
     process.stderr.write(`Error: ${err.message}\n`)
-    process.exit(1)
   }
 }
 

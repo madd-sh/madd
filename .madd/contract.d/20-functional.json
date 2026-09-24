@@ -1,0 +1,76 @@
+{
+  "functional": {
+    "requirements": [
+      {
+        "id": "REQ-F-001",
+        "source_ids": [
+          "M01"
+        ],
+        "description": "Shipped legacy fragments and all five adapter installs satisfy the bundled legacy schema.",
+        "acceptance_criteria": [
+          "Given each shipped adapter, when scaffolded, then every contract fragment and the assembly validate."
+        ],
+        "validation": {
+          "method": "test",
+          "test_id": "TEST-001"
+        }
+      },
+      {
+        "id": "REQ-F-002",
+        "source_ids": [
+          "M02"
+        ],
+        "description": "The versioned complete contract rejects missing required sections and invalid typed acceptance/check data.",
+        "acceptance_criteria": [
+          "Given malformed or incomplete data, when validated, then the CLI returns a nonzero result."
+        ],
+        "validation": {
+          "method": "test",
+          "test_id": "TEST-002"
+        }
+      },
+      {
+        "id": "REQ-F-003",
+        "source_ids": [
+          "M03"
+        ],
+        "description": "Validation rejects ambiguity, path escapes, symlinks, cycles and invalid references without running commands.",
+        "acceptance_criteria": [
+          "Given a hostile local specification, when validated, then it fails without shell execution or remote resolution."
+        ],
+        "validation": {
+          "method": "test",
+          "test_id": "TEST-003"
+        }
+      },
+      {
+        "id": "REQ-F-004",
+        "source_ids": [
+          "M04"
+        ],
+        "description": "Delivery requires fresh evidence from separately trusted CI and review authorities.",
+        "acceptance_criteria": [
+          "Given missing, tampered, stale, skipped or self-approved evidence, when verification runs, then delivery is refused."
+        ],
+        "validation": {
+          "method": "test",
+          "test_id": "TEST-004"
+        }
+      },
+      {
+        "id": "REQ-F-005",
+        "source_ids": [
+          "M10"
+        ],
+        "description": "The release candidate is built and tested with pinned dependencies before publication.",
+        "acceptance_criteria": [
+          "Given the package, when checked, then dependencies are exact, no lifecycle scripts execute, and shipped files contain the validator/schema/templates."
+        ],
+        "validation": {
+          "method": "test",
+          "test_id": "TEST-005"
+        }
+      }
+    ]
+  }
+}

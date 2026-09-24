@@ -1,0 +1,123 @@
+{
+  "tasks": {
+    "items": [
+      {
+        "id": "TASK-001",
+        "source_ids": [
+          "M01"
+        ],
+        "title": "Shipped legacy fragments and all five adapter installs satisfy the bundled legacy schema.",
+        "status": "in_progress",
+        "requirements": [
+          "REQ-F-001"
+        ],
+        "repository": "cli",
+        "owner": "MADD maintainer",
+        "risk": "medium"
+      },
+      {
+        "id": "TASK-002",
+        "source_ids": [
+          "M02"
+        ],
+        "title": "The versioned complete contract rejects missing required sections and invalid typed acceptance/check data.",
+        "status": "in_progress",
+        "requirements": [
+          "REQ-F-002"
+        ],
+        "repository": "cli",
+        "owner": "MADD maintainer",
+        "risk": "medium"
+      },
+      {
+        "id": "TASK-003",
+        "source_ids": [
+          "M03"
+        ],
+        "title": "Validation rejects ambiguity, path escapes, symlinks, cycles and invalid references without running commands.",
+        "status": "in_progress",
+        "requirements": [
+          "REQ-F-003"
+        ],
+        "repository": "cli",
+        "owner": "MADD maintainer",
+        "risk": "medium"
+      },
+      {
+        "id": "TASK-004",
+        "source_ids": [
+          "M04"
+        ],
+        "title": "Delivery requires fresh evidence from separately trusted CI and review authorities.",
+        "status": "in_progress",
+        "requirements": [
+          "REQ-F-004"
+        ],
+        "repository": "cli",
+        "owner": "MADD maintainer",
+        "risk": "high"
+      },
+      {
+        "id": "TASK-005",
+        "source_ids": [
+          "M10"
+        ],
+        "title": "The release candidate is built and tested with pinned dependencies before publication.",
+        "status": "in_progress",
+        "requirements": [
+          "REQ-F-005"
+        ],
+        "repository": "cli",
+        "owner": "MADD maintainer",
+        "risk": "medium"
+      }
+    ],
+    "tests": [
+      {
+        "id": "TEST-001",
+        "type": "contract",
+        "requirement": "REQ-F-001",
+        "description": "Given each shipped adapter, when scaffolded, then every contract fragment and the assembly validate.",
+        "binding": "bound",
+        "ref": "test/contract.test.js",
+        "status": "pending"
+      },
+      {
+        "id": "TEST-002",
+        "type": "contract",
+        "requirement": "REQ-F-002",
+        "description": "Given malformed or incomplete data, when validated, then the CLI returns a nonzero result.",
+        "binding": "bound",
+        "ref": "test/contract.test.js",
+        "status": "pending"
+      },
+      {
+        "id": "TEST-003",
+        "type": "security",
+        "requirement": "REQ-F-003",
+        "description": "Given a hostile local specification, when validated, then it fails without shell execution or remote resolution.",
+        "binding": "bound",
+        "ref": "test/contract.test.js",
+        "status": "pending"
+      },
+      {
+        "id": "TEST-004",
+        "type": "security",
+        "requirement": "REQ-F-004",
+        "description": "Given missing, tampered, stale, skipped or self-approved evidence, when verification runs, then delivery is refused.",
+        "binding": "bound",
+        "ref": "test/evidence.test.js",
+        "status": "pending"
+      },
+      {
+        "id": "TEST-005",
+        "type": "contract",
+        "requirement": "REQ-F-005",
+        "description": "Given the package, when checked, then dependencies are exact, no lifecycle scripts execute, and shipped files contain the validator/schema/templates.",
+        "binding": "bound",
+        "ref": "test/cli.test.js",
+        "status": "pending"
+      }
+    ]
+  }
+}

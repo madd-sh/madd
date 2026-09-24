@@ -1,0 +1,17 @@
+{
+  "functional": {
+    "requirements": [
+      {
+        "id": "REQ-F-001",
+        "description": "Replace with one observable behavior.",
+        "acceptance_criteria": [
+          "Replace with one pass/fail condition."
+        ],
+        "validation": {
+          "method": "test",
+          "test_id": "TEST-001"
+        }
+      }
+    ]
+  }
+}
