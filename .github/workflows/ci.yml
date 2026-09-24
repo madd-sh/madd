@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [18, 20, 22]
+        node: [18.20.8, 20.20.2, 22.23.3]
     steps:
       - name: Harden runner
         uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
@@ -44,7 +44,9 @@ jobs:
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           node-version: ${{ matrix.node }}
-      - name: Audit (zero deps expected)
+      - name: Install locked dependencies without scripts
+        run: npm ci --ignore-scripts
+      - name: Audit validation dependencies
         run: npm audit --audit-level=high
       - name: Test
-        run: npm test
+        run: make check

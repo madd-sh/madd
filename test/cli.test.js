@@ -127,12 +127,20 @@ test('deinit with all files pristine removes the manifest entirely', () => {
   fs.rmSync(dir, { recursive: true, force: true })
 })
 
-test('package declares no install-time lifecycle scripts and no dependencies', () => {
+test('package has no lifecycle scripts and only explicitly pinned validation dependencies', () => {
   const scripts = PKG.scripts ?? {}
   for (const hook of ['preinstall', 'install', 'postinstall', 'prepare', 'prepublish']) {
     assert.equal(scripts[hook], undefined, `package.json must not define a "${hook}" script`)
   }
-  assert.deepEqual(PKG.dependencies ?? {}, {}, 'package must ship with zero runtime dependencies')
+  assert.deepEqual(Object.keys(PKG.dependencies).sort(), ['ajv', 'ajv-formats', 'jsonc-parser'])
+  for (const version of Object.values(PKG.dependencies)) assert.match(version, /^\d+\.\d+\.\d+$/)
+  const lock = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package-lock.json')))
+  for (const [name, pkg] of Object.entries(lock.packages)) {
+    if (!name) continue
+    assert.equal(pkg.hasInstallScript, undefined, `${name} must not execute installation scripts`)
+    assert.match(pkg.integrity, /^sha512-/, `${name} requires lockfile integrity`)
+  }
+  for (const file of ['schemas', 'templates']) assert.ok(PKG.files.includes(file), `npm package must contain ${file}`)
 })
 
 test('TUI render emits real ANSI escape sequences (ESC byte present)', () => {

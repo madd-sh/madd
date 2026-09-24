@@ -39,7 +39,7 @@ is stored anywhere. GitHub Actions proves its identity to npm per-run.
    org/repo `madd-sh/madd` and workflow `release.yml`.
 3. Provenance + tokenless require: repo **public** (done), `id-token: write`
    (set in `release.yml`), and **npm >= 11.5.1** on the runner (the workflow runs
-   `npm install -g npm@latest` to guarantee this).
+   `npm install -g npm@11.20.0 --ignore-scripts` to guarantee this).
 
 Bootstrap note: npm configures a trusted publisher on an **existing** package, so the
 package name must exist first. If the npmjs UI won't let you pre-register the publisher
@@ -57,7 +57,7 @@ npm publish --access public            # bootstrap v0.1.0 (no provenance on this
 Settings > Branches > add rule for `main`:
 
 - Require a pull request before merging; require review from **Code Owners**.
-- Require status checks to pass: `test (18)`, `test (20)`, `test (22)`, `CodeQL`.
+- Require status checks to pass: `test (18.20.8)`, `test (20.20.2)`, `test (22.23.3)`, `CodeQL`.
 - **Require signed commits.**
 - Require linear history; block force pushes and deletions.
 
@@ -96,3 +96,16 @@ npm audit signatures      # verifies registry signature + provenance attestation
 Provenance links the published tarball back to this repo, the workflow file, and the
 exact commit, recorded in the public Rekor transparency log. Target: SLSA Build Track L2.
 A later move to reusable hardened workflows would raise this toward L3.
+
+## 0.2.0 candidate gate
+
+The working package version is `0.2.0-rc.1`; it has not been published by this
+change. No tag is created by `make check`. Require independent review of the
+exact final diff, green remote CI, package-content verification and explicit
+release approval before pushing a release tag. Node 18/20 jobs are legacy
+compatibility checks; maintainers should use the pinned Node 22 toolchain.
+
+Read [the format and trust boundary](docs/contracts.md) before enabling
+`verify`. Protected evidence authorities are not provisioned automatically.
+Local tests and synthetic signed test fixtures are not production delivery
+attestations. The Qareen migration waits for the pilot retrospective.

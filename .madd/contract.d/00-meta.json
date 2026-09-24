@@ -1,0 +1,16 @@
+{
+  "meta": {
+    "format_version": "0.2.0",
+    "name": "MADD relaunch \u2014 executable contract pilot",
+    "version": "0.2.0",
+    "status": "draft",
+    "owner": "MADD maintainer",
+    "sources": [
+      {
+        "id": "cli",
+        "repository": "https://github.com/madd-sh/madd",
+        "revision": "063e420a888b6fc0749d77787577657478b6db8a"
+      }
+    ]
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "audit_cycle": {
+    "current_iteration": 0,
+    "max_iterations": 3,
+    "status": "in_progress",
+    "history": [],
+    "recommendations": [],
+    "fractions": [
+      {
+        "id": "FRAC-001",
+        "name": "Template and contract validation",
+        "tasks": [
+          "TASK-001",
+          "TASK-002",
+          "TASK-003"
+        ],
+        "requirements": [
+          "REQ-F-001",
+          "REQ-F-002",
+          "REQ-F-003"
+        ],
+        "status": "in_progress"
+      },
+      {
+        "id": "FRAC-002",
+        "name": "Evidence and release controls",
+        "tasks": [
+          "TASK-004",
+          "TASK-005"
+        ],
+        "requirements": [
+          "REQ-F-004",
+          "REQ-F-005"
+        ],
+        "status": "pending"
+      }
+    ]
+  }
+}

@@ -6,10 +6,6 @@
       "decisions": []
     },
     "stack": {
-      "language": null,
-      "runtime": null,
-      "framework": null,
-      "database": null,
       "packages": {
         "required": [],
         "forbidden": [],

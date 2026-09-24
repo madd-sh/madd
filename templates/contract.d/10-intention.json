@@ -1,0 +1,11 @@
+{
+  "intention": {
+    "context": "Describe the problem this change resolves.",
+    "objectives": [
+      {
+        "id": "OBJ-001",
+        "description": "Describe the observable outcome."
+      }
+    ]
+  }
+}

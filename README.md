@@ -1,134 +1,102 @@
-# madd
+# 🤪 MADD — make intent verifiable
 
-The CLI for [MADD (Multi-Agent Driven Development)](https://madd.sh).
+MADD (Multi-Agent Driven Development) turns intent into a versioned contract,
+a small implementation fraction, executed checks, independent review and a
+retrospective. Humans and agents can share those responsibilities. Start with
+a developer, a reviewer and your existing CI; agent adapters are optional.
+
+This branch contains **CLI 0.2.0-rc.1 / format 0.2.0 candidate**. The published
+0.1.3 installer does not have `validate`, `verify` or `--contract-only`.
+No package is published simply by running the checks below.
+
+## Try the contract-only candidate
 
 ```sh
-npx @madd-sh/madd init
+npm ci --ignore-scripts
+mkdir /tmp/my-change
+node bin/madd.js init /tmp/my-change --contract-only
+node bin/madd.js validate /tmp/my-change --json
 ```
 
-Detects which coding agents are present in your project, lets you select which ones to scaffold, and installs the full MADD methodology stack — agents, hooks, skills, contract files — without touching your existing code.
+This creates four JSON specification fragments and an editor schema. It adds
+no agent instructions, hooks or services, and refuses to overwrite `.madd`.
+Replace the starter requirement and acceptance check; then bind the check to
+an existing repository file and run `validate --require-bound`.
 
----
+A valid contract, a bound test and a delivered change are different claims.
+`validate` never executes specification content and always reports
+`delivered: false`. `verify` additionally requires signed receipts from
+separately trusted CI and independent review authorities for the exact clean
+candidate. It fails closed when authority setup or evidence is missing.
+
+Read [the format, compatibility and trust model](docs/contracts.md) before
+using evidence as a delivery gate. The CLI does not provision signing keys,
+alter branch protection or turn a local test result into a CI attestation.
 
 ## Commands
 
-```sh
-madd init [path]      Scaffold MADD into current dir or [path]
-madd status [path]    Show install state (version, modified/missing files)
-madd update [path]    Update MADD files with diff + confirm; prune orphans
-madd deinit [path]    Remove unmodified MADD files (reads the manifest)
-madd doctor [path]    Validate an existing MADD install
+```text
+madd init [path] --contract-only  Create a minimal candidate contract
+madd validate [path]             Validate structure, references and check bindings
+madd verify [path]               Verify trusted CI and review receipts
+
+madd init [path]                 Install selected legacy agent adapters
+madd status [path]               Inspect adapter files using the install manifest
+madd update [path]               Review adapter updates and prune pristine orphans
+madd deinit [path]               Remove pristine adapter files; keep edited files
+madd doctor [path]               Check adapter installation health
 ```
 
-## Options
+`--json` provides machine output for status, doctor, validate and verify.
+Validation accepts `--fraction FRAC-001` and `--require-bound`. Verification
+requires `--fraction`, `--evidence FILE` and `--trust FILE`; its protected
+trust policy must be outside the candidate checkout.
 
-```sh
---force, -f    init: overwrite existing files (backs up first into .madd.bak/)
-               deinit: skip the SHA1 check (10s Ctrl-C window in a terminal)
---dry-run      Show what would happen without writing anything
---yes, -y      Skip TUI, auto-select all detected agents
---json         Machine-readable output (status, doctor)
---version, -v  Print version
---help, -h     Print help
-```
+Adapter installation supports `--dry-run`, `--yes` and `--force` (backup in
+`.madd.bak/`). Forced deinit is a separate destructive operation with a TTY
+countdown. Contract-only initialization does not accept force.
 
-## Manifest
+## Keep existing agent installations compatible
 
-Every `init` writes `.madd/manifest.yaml`: the list of files MADD installed,
-each with the SHA1 of the template it came from, plus the `maddVersion` and the
-selected agents. It is human-readable YAML (a superset of JSON).
-
-This is what makes `deinit` safe: a file is only removed when it still matches
-the template SHA1, so anything you have edited (or a config that predated the
-install) is always kept. `status` uses the same comparison to report which
-tracked files are `unchanged`, `modified`, or `missing`.
-
----
-
-## Supported agents
-
-| Agent | Detection marker |
-|---|---|
-| Claude Code | `.claude/settings.json` |
-| Codex | `.codex/config.toml` |
-| Mistral Vibe | `.vibe/config.toml` |
-| OpenCode | `.opencode/opencode.json` |
-| Docker cagent | `madd.yaml` |
-
----
-
-## What gets installed
-
-```
-.madd/
-├── README.md                  MADD methodology overview
-├── README.<agent>.md          Agent-specific guide (one per selected agent)
-├── contract.d/
-│   ├── 00-meta.json           Project metadata + maddVersion
-│   ├── 10-intention.json      Goals and constraints
-│   ├── 20-functional.json     User stories, acceptance criteria
-│   ├── 30-technical.json      Stack, architecture decisions
-│   ├── 40-tasks.json          Current fraction tasks
-│   ├── 50-operations.json     Deployment, runbooks
-│   ├── 60-audit-cycle.json    Breaker findings
-│   └── 90-retro.json          Witness retrospective notes
-├── contract.schema.json
-├── mailbox/                   Inter-agent messages
-└── state.json                 Active workflow state
-
-.claude/                       (claude-code only)
-├── agents/                    6 MADD sub-agents
-├── commands/madd.md           /madd slash command
-├── hooks/                     Safety guards (block-dangerous, validate-state)
-├── rules/                     Code style contracts
-├── skills/                    20 COSTA knowledge contracts
-└── settings.json              Hook wiring
-```
-
-Your existing project files are never modified. MADD installs only into `.madd/` and the agent config directory (`.claude/`, `.codex/`, etc.).
-
----
-
-## Safety model
-
-| Scenario | Behaviour |
-|---|---|
-| File already exists | Skip (default) |
-| File already exists + `--force` | Backup to `.madd.bak/`, then overwrite |
-| File already exists + `update` | Show `diff -u`, ask confirmation per file |
-| `--dry-run` | Log everything, write nothing |
-
----
-
-## After install
+The installer includes Claude Code, Codex, Mistral Vibe, OpenCode and Docker
+cagent adapters. Detection uses `.claude/settings.json`, `.codex/config.toml`,
+`.vibe/config.toml`, `.opencode/opencode.json` and `madd.yaml`, respectively.
+The optional adapters use the existing legacy contract and workflow. Their
+scaffolding/schema compatibility is regression-tested; client runtime behavior
+still depends on the adapter and installed client version.
 
 ```sh
-madd doctor          # validate the install
-
-# Claude Code: start a MADD fraction
-/madd
+npx @madd-sh/madd@0.1.3 init --dry-run
 ```
 
-Read `.madd/README.md` in your project for a full explanation of the contract system, the six MADD agents, and the COSTA framework.
+An adapter installation records template SHA-256 hashes in
+`.madd/manifest.yaml`. Deinit keeps modified files. These lifecycle commands
+manage installed adapters; a contract-only specification is authored source
+and evolves through reviewed source changes. No automatic format migration
+is performed. Existing 0.1.3 `doctor` is an installation check, not a
+complete-contract or delivery validator.
 
----
+## Develop and review
 
-## Security
-
-`madd` installs executable content (shell hooks + LLM-executed agent instructions),
-so it is treated as supply-chain-sensitive: SHA-256 integrity manifest, zero
-dependencies and zero install scripts, path-traversal guard, signed provenance-backed
-releases (SLSA Build L2), GPG-signed commits, pinned/hardened CI, CodeQL and Scorecard.
-
-See [SECURITY.md](SECURITY.md) for the threat model and reporting, and
-[RELEASING.md](RELEASING.md) for the release pipeline.
+The maintainer toolchain is pinned in `.node-version`. Node 18 and 20 remain
+legacy compatibility targets in CI; prefer the maintained Node 22 toolchain.
 
 ```sh
-npx @madd-sh/madd@<version> init --dry-run --yes .   # inspect before installing
-npm audit signatures                                # verify provenance after install
+npm ci --ignore-scripts
+make check
 ```
 
-## Requirements
+The checks validate shipped legacy templates and all five adapter assemblies,
+strict parsing and filesystem boundaries, semantic references and fractions,
+stale/tampered/incomplete/self-approved evidence, the relaunch's own contract,
+and the npm package inventory. New validation dependencies are exact pins
+with a lockfile and no install scripts. [The dependency decision](docs/contracts.md#dependency-and-rollback-decision)
+is explicit: use maintained JSON Schema and parsing implementations rather
+than a custom standards subset.
 
-- Node.js >= 18
-- `diff` (standard Unix tool, included on macOS, Linux, and Git for Windows)
+The relaunch is itself specified in `.madd/contract.d/`. Its retrospective
+records actual local/CI/review evidence and limitations. Qareen's contract
+migration follows the pilot learning, not this implementation.
+
+For publication controls, see [RELEASING.md](RELEASING.md). For security reports,
+see [SECURITY.md](SECURITY.md). Website: [madd.sh](https://madd.sh).
