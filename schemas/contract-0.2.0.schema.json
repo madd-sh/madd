@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://madd.sh/schemas/draft/0.2.0/contract.schema.json",
+  "$id": "https://madd.sh/schemas/0.2.0/contract.schema.json",
   "title": "MADD Contract Schema",
-  "description": "MADD 0.2.0 candidate. Complete contracts require meta, intention, functional and tasks; fragment validation omits root required only. Status is not delivery evidence.",
+  "description": "MADD 0.2.0 stable. Complete contracts require meta, intention, functional and tasks; fragment validation omits root required only. Status is not delivery evidence.",
   "type": "object",
   "properties": {
     "meta": {
@@ -2226,6 +2226,7 @@
     "$schema": {
       "enum": [
         "../contract.schema.json",
+        "https://madd.sh/schemas/0.2.0/contract.schema.json",
         "https://madd.sh/schemas/draft/0.2.0/contract.schema.json"
       ]
     }

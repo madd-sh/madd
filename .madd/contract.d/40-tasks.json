@@ -117,6 +117,15 @@
         "binding": "bound",
         "ref": "test/cli.test.js",
         "status": "pending"
+      },
+      {
+        "id": "TEST-006",
+        "type": "contract",
+        "requirement": "REQ-F-002",
+        "description": "Stable schema identity preserves relative and RC contracts and rejects unknown schemas.",
+        "binding": "bound",
+        "ref": "test/release.test.js",
+        "status": "pending"
       }
     ]
   }

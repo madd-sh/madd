@@ -22,7 +22,8 @@
         ],
         "description": "The versioned complete contract rejects missing required sections and invalid typed acceptance/check data.",
         "acceptance_criteria": [
-          "Given malformed or incomplete data, when validated, then the CLI returns a nonzero result."
+          "Given malformed or incomplete data, when validated, then the CLI returns a nonzero result.",
+          "Given relative, stable or RC schema identities, validation succeeds without asserting delivery; unknown schema identities are rejected."
         ],
         "validation": {
           "method": "test",

@@ -5,17 +5,16 @@ a small implementation fraction, executed checks, independent review and a
 retrospective. Humans and agents can share those responsibilities. Start with
 a developer, a reviewer and your existing CI; agent adapters are optional.
 
-This branch contains **CLI 0.2.0-rc.1 / format 0.2.0 candidate**. The published
-0.1.3 installer does not have `validate`, `verify` or `--contract-only`.
-No package is published simply by running the checks below.
+**CLI 0.2.0 / contract format 0.2.0** provides contract-only initialization,
+validation and evidence verification. Existing agent adapters keep their
+legacy contract; no automatic migration is performed.
 
-## Try the contract-only candidate
+## Start with a contract
 
 ```sh
-npm ci --ignore-scripts
 mkdir /tmp/my-change
-node bin/madd.js init /tmp/my-change --contract-only
-node bin/madd.js validate /tmp/my-change --json
+npx --yes @madd-sh/madd@0.2.0 init /tmp/my-change --contract-only
+npx --yes @madd-sh/madd@0.2.0 validate /tmp/my-change --json
 ```
 
 This creates four JSON specification fragments and an editor schema. It adds
@@ -36,7 +35,7 @@ alter branch protection or turn a local test result into a CI attestation.
 ## Commands
 
 ```text
-madd init [path] --contract-only  Create a minimal candidate contract
+madd init [path] --contract-only  Create a minimal versioned contract
 madd validate [path]             Validate structure, references and check bindings
 madd verify [path]               Verify trusted CI and review receipts
 
@@ -66,7 +65,7 @@ scaffolding/schema compatibility is regression-tested; client runtime behavior
 still depends on the adapter and installed client version.
 
 ```sh
-npx @madd-sh/madd@0.1.3 init --dry-run
+npx @madd-sh/madd@0.2.0 init --dry-run
 ```
 
 An adapter installation records template SHA-256 hashes in
