@@ -1,9 +1,17 @@
-# Contract format 0.2.0 — release candidate
+# Contract format 0.2.0
 
-This is the opt-in candidate format, distinct from the CLI package version.
-It is being exercised by MADD's own relaunch. The published 0.1.3 installer
-and its five agent adapters retain their legacy contract. No automatic
-migration or production evidence authority is enabled by this change.
+This stable, opt-in format is shipped with CLI 0.2.0; the format version is
+distinct from the CLI package version. All five optional agent adapters retain
+their legacy contract. No automatic migration or production evidence authority
+is enabled by this release.
+
+The canonical schema is
+`https://madd.sh/schemas/0.2.0/contract.schema.json`. Its published contents are
+immutable. The RC's draft URL remains accepted for existing contracts, alongside
+the relative editor-schema path. The stable schema changes only its identity,
+description and accepted identity aliases from RC.1; contract fields and evidence
+semantics are unchanged. Validation always uses the bundled schema, never the
+URL supplied by a contract. Breaking format changes require a new format version.
 
 ## Start without an agent
 
@@ -28,7 +36,7 @@ all selected checks are bound. Validation **never executes that file**.
 
 ## Structure and semantics
 
-The authoritative candidate schema is
+The authoritative stable schema is
 [`schemas/contract-0.2.0.schema.json`](../schemas/contract-0.2.0.schema.json).
 JSON Schema draft 2020-12 is checked with pinned Ajv and ajv-formats. Microsoft
 jsonc-parser supplies token callbacks to detect duplicate properties before
@@ -75,8 +83,8 @@ smudge filters or LFS expansion are unsupported and fail closed.
 The original adapter templates use `meta.maddVersion`, `meta.release` and
 `audit_cycle.scope_details`. Witness instructions also describe
 `retro.fractions`, implementation observations and coverage maps. Those
-fields were inspected before closing the candidate schema and are modeled
-explicitly or retained as JSON data maps. The candidate additionally requires
+fields were inspected before closing the 0.2.0 schema and are modeled
+explicitly or retained as JSON data maps. The 0.2.0 format additionally requires
 owners, format identity, real requirements and explicit check binding states;
 legacy empty scaffolds are not complete new-format contracts.
 
@@ -137,7 +145,7 @@ There is no key provisioning, new service or secret required for ordinary
 validation. Authenticated delivery remains unavailable until those authorities
 are configured. Do not give signing credentials to untrusted PR jobs. Existing
 CI/review mechanisms can supply receipts in protected post-check jobs; the
-candidate does not silently change GitHub branch protection or account settings.
+CLI does not silently change GitHub branch protection or account settings.
 
 Each envelope is `{ "payload": <object>, "signature": <base64> }`. The evidence
 file has exactly `ci` and `review` envelopes. The signature is Ed25519 over
@@ -196,8 +204,8 @@ second Python runtime. This decision is limited to contract validation.
 
 Rollback to 0.1.3 restores the legacy installer; new format contracts remain
 authored files and must not be silently fed to a legacy completeness/evidence
-gate. Keep the candidate schema path separate until a reviewed release freezes
-the final schema and CLI compatibility notes.
+gate. RC.1 remains available as an explicitly pinned prerelease; rolling back
+the package does not rewrite project contracts or reset npm dist-tags.
 
 References: [Ajv JSON Schema](https://ajv.js.org/json-schema.html),
 [Microsoft JSON parser](https://github.com/microsoft/node-jsonc-parser).

@@ -72,13 +72,29 @@ Settings > Code security:
 
 ## Cutting a release
 
-```sh
-# 1. Bump version (commit is signed automatically)
-npm version patch        # or minor / major -> updates package.json, makes a signed tag
+1. On a release branch, update the package and lockfile without making a tag:
 
-# 2. Push the commit and the signed tag
-git push && git push --tags
-```
+   ```sh
+   npm version 0.2.0 --no-git-tag-version --ignore-scripts
+   npm ci --ignore-scripts
+   make check
+   ```
+
+2. Commit the exact release diff with GPG signing and open a pull request.
+   Require independent review, green remote CI and explicit release approval.
+   Review the npm package inventory as well as the source diff.
+3. After the approved changes reach `main`, check out that exact commit and
+   create and push only its signed release tag:
+
+   ```sh
+   git tag -s v0.2.0 -m "MADD 0.2.0"
+   git verify-tag v0.2.0
+   git push origin refs/tags/v0.2.0
+   ```
+
+Do not create a release tag while preparing the pull request, and do not push
+unrelated tags with `--tags`. Use the intended version instead of `0.2.0` for
+subsequent releases.
 
 The tag push triggers `.github/workflows/release.yml`, which:
 
@@ -97,10 +113,11 @@ Provenance links the published tarball back to this repo, the workflow file, and
 exact commit, recorded in the public Rekor transparency log. Target: SLSA Build Track L2.
 A later move to reusable hardened workflows would raise this toward L3.
 
-## 0.2.0 candidate gate
+## 0.2.0 stable gate
 
-The working package version is `0.2.0-rc.1`; it has not been published by this
-change. No tag is created by `make check`. Require independent review of the
+CLI `0.2.0` promotes RC.1 without changing contract field or evidence semantics.
+The canonical schema URL is versioned; the RC URL remains an accepted alias.
+No tag is created by `make check`. Require independent review of the
 exact final diff, green remote CI, package-content verification and explicit
 release approval before pushing a release tag. Node 18/20 jobs are legacy
 compatibility checks; maintainers should use the pinned Node 22 toolchain.
